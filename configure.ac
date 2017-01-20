@@ -5,7 +5,7 @@ AC_INIT([rfxcodec], [0.1.0], [jay.sorg@gmail.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.6 foreign])
 AC_CONFIG_MACRO_DIR([m4])
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_PROG_CC
 AC_C_CONST
 AC_PROG_LIBTOOL

@@ -53,5 +53,10 @@ librfxencode_la_SOURCES = $(noinst_HEADERS) rfxencode.c \
   rfxencode_quantization.c rfxencode_differential.c \
   rfxencode_rlgr1.c rfxencode_rlgr3.c rfxencode_alpha.c $(ASM_SOURCES)
 
+nasm_verbose = $(nasm_verbose_@AM_V@)
+nasm_verbose_ = $(nasm_verbose_@AM_DEFAULT_V@)
+nasm_verbose_0 = @echo "  NASM     $@";
+
 .asm.lo:
-	$(LIBTOOL) --mode=compile $(srcdir)/nasm_lt.sh $(NASM) $(NAFLAGS) -I$(srcdir) -I. $< -o $@
+	$(nasm_verbose)$(LIBTOOL) $(AM_V_lt) --mode=compile \
+	  $(srcdir)/nasm_lt.sh $(NASM) $(NAFLAGS) -I$(srcdir) -I. $< -o $@
