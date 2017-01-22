@@ -47,9 +47,9 @@ struct rfxencode
     sint16 dwt_buffer1_a[4096];
     sint16 dwt_buffer2_a[4096];
     uint8 pad2[16];
-    sint16* dwt_buffer;
-    sint16* dwt_buffer1;
-    sint16* dwt_buffer2;
+    sint16 *dwt_buffer;
+    sint16 *dwt_buffer1;
+    sint16 *dwt_buffer2;
     rfx_encode_proc rfx_encode;
 
     int got_sse2;

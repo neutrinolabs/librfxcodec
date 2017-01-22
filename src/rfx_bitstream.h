@@ -24,7 +24,7 @@
 
 struct _RFX_BITSTREAM
 {
-    uint8* buffer;
+    uint8 *buffer;
     int nbytes;
     int byte_pos;
     int bits_left;
@@ -32,7 +32,7 @@ struct _RFX_BITSTREAM
 typedef struct _RFX_BITSTREAM RFX_BITSTREAM;
 
 #define rfx_bitstream_attach(bs, _buffer, _nbytes) do { \
-    bs.buffer = (uint8*) (_buffer); \
+    bs.buffer = (uint8 *) (_buffer); \
     bs.nbytes = (_nbytes); \
     bs.byte_pos = 0; \
     bs.bits_left = 8; } while (0)

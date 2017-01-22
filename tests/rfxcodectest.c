@@ -238,7 +238,7 @@ load_bmp_file(int in_fd, char **data, int *width, int *height)
 
     free(line);
 
-    return 0; 
+    return 0;
 }
 
 /******************************************************************************/
@@ -305,7 +305,7 @@ encode_file(char *data, int width, int height, char *cdata, int *cdata_bytes,
 
 
     free(tiles);
-    return 0; 
+    return 0;
 }
 
 /******************************************************************************/
@@ -330,7 +330,7 @@ read_file(int count, const char *quants, int num_quants,
     out_fd = -1;
     if (out_file[0] != 0)
     {
-        if (access(out_file, F_OK) == 0) 
+        if (access(out_file, F_OK) == 0)
         {
             printf("out files exists\n");
             return 1;
@@ -360,10 +360,10 @@ read_file(int count, const char *quants, int num_quants,
         return 1;
     }
     printf("encode data ok bytes %d\n", cdata_bytes);
-    
+
     if (out_fd != -1)
     {
-        if (write(out_fd, cdata, cdata_bytes) != cdata_bytes) 
+        if (write(out_fd, cdata, cdata_bytes) != cdata_bytes)
         {
             printf("write failed\n");
         }
@@ -376,7 +376,7 @@ read_file(int count, const char *quants, int num_quants,
     {
         close(out_fd);
     }
-    return 0; 
+    return 0;
 }
 
 /******************************************************************************/
@@ -449,5 +449,5 @@ main(int argc, char **argv)
     {
         read_file(count, quants, 2, in_file, out_file);
     }
-    return 0; 
+    return 0;
 }

@@ -22,9 +22,9 @@
 #include "rfxcommon.h"
 
 int
-rfx_compose_message_header(struct rfxencode* enc, STREAM* s);
+rfx_compose_message_header(struct rfxencode *enc, STREAM *s);
 int
-rfx_compose_message_data(struct rfxencode* enc, STREAM* s,
+rfx_compose_message_data(struct rfxencode *enc, STREAM *s,
                          const struct rfx_rect *regions, int num_regions,
                          char *buf, int width, int height, int stride_bytes,
                          const struct rfx_tile *tiles, int num_tiles,

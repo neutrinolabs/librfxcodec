@@ -76,7 +76,7 @@ rfx_encode_format_rgb(char *rgb_data, int width, int height,
         case RFX_FORMAT_BGRA:
             for (y = 0; y < height; y++)
             {
-                src = (uint8*) (rgb_data + y * stride_bytes);
+                src = (uint8 *) (rgb_data + y * stride_bytes);
                 lr_buf = r_buf + y * 64;
                 lg_buf = g_buf + y * 64;
                 lb_buf = b_buf + y * 64;
@@ -112,7 +112,7 @@ rfx_encode_format_rgb(char *rgb_data, int width, int height,
         case RFX_FORMAT_RGBA:
             for (y = 0; y < height; y++)
             {
-                src = (uint8*) (rgb_data + y * stride_bytes);
+                src = (uint8 *) (rgb_data + y * stride_bytes);
                 lr_buf = r_buf + y * 64;
                 lg_buf = g_buf + y * 64;
                 lb_buf = b_buf + y * 64;
@@ -148,7 +148,7 @@ rfx_encode_format_rgb(char *rgb_data, int width, int height,
         case RFX_FORMAT_BGR:
             for (y = 0; y < height; y++)
             {
-                src = (uint8*) (rgb_data + y * stride_bytes);
+                src = (uint8 *) (rgb_data + y * stride_bytes);
                 lr_buf = r_buf + y * 64;
                 lg_buf = g_buf + y * 64;
                 lb_buf = b_buf + y * 64;
@@ -183,7 +183,7 @@ rfx_encode_format_rgb(char *rgb_data, int width, int height,
         case RFX_FORMAT_RGB:
             for (y = 0; y < height; y++)
             {
-                src = (uint8*) (rgb_data + y * stride_bytes);
+                src = (uint8 *) (rgb_data + y * stride_bytes);
                 lr_buf = r_buf + y * 64;
                 lg_buf = g_buf + y * 64;
                 lb_buf = b_buf + y * 64;
@@ -247,7 +247,7 @@ rfx_encode_format_argb(char *argb_data, int width, int height,
         case RFX_FORMAT_BGRA:
             for (y = 0; y < height; y++)
             {
-                src = (uint8*) (argb_data + y * stride_bytes);
+                src = (uint8 *) (argb_data + y * stride_bytes);
                 la_buf = a_buf + y * 64;
                 lr_buf = r_buf + y * 64;
                 lg_buf = g_buf + y * 64;
@@ -288,7 +288,7 @@ rfx_encode_format_argb(char *argb_data, int width, int height,
         case RFX_FORMAT_RGBA:
             for (y = 0; y < height; y++)
             {
-                src = (uint8*) (argb_data + y * stride_bytes);
+                src = (uint8 *) (argb_data + y * stride_bytes);
                 la_buf = a_buf + y * 64;
                 lr_buf = r_buf + y * 64;
                 lg_buf = g_buf + y * 64;
@@ -329,7 +329,7 @@ rfx_encode_format_argb(char *argb_data, int width, int height,
         case RFX_FORMAT_BGR:
             for (y = 0; y < height; y++)
             {
-                src = (uint8*) (argb_data + y * stride_bytes);
+                src = (uint8 *) (argb_data + y * stride_bytes);
                 lr_buf = r_buf + y * 64;
                 lg_buf = g_buf + y * 64;
                 lb_buf = b_buf + y * 64;
@@ -364,7 +364,7 @@ rfx_encode_format_argb(char *argb_data, int width, int height,
         case RFX_FORMAT_RGB:
             for (y = 0; y < height; y++)
             {
-                src = (uint8*) (argb_data + y * stride_bytes);
+                src = (uint8 *) (argb_data + y * stride_bytes);
                 lr_buf = r_buf + y * 64;
                 lg_buf = g_buf + y * 64;
                 lb_buf = b_buf + y * 64;

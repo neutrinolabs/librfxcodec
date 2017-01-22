@@ -23,6 +23,6 @@
 #include "rfxcommon.h"
 
 int
-rfx_rlgr3_encode(const sint16* data, uint8* buffer, int buffer_size);
+rfx_rlgr3_encode(const sint16 *data, uint8 *buffer, int buffer_size);
 
 #endif /* __RFX_RLGR_H */

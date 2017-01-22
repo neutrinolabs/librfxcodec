@@ -47,7 +47,7 @@ static const unsigned char g_rfx_default_quantization_values[] =
 
 /******************************************************************************/
 static int
-rfx_compose_message_sync(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_sync(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 12)
     {
@@ -62,7 +62,7 @@ rfx_compose_message_sync(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_context(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_context(struct rfxencode *enc, STREAM *s)
 {
     uint16 properties;
     int rlgr;
@@ -101,7 +101,7 @@ rfx_compose_message_context(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_codec_versions(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_codec_versions(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 10)
     {
@@ -117,7 +117,7 @@ rfx_compose_message_codec_versions(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_channels(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_channels(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 12)
     {
@@ -134,7 +134,7 @@ rfx_compose_message_channels(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 int
-rfx_compose_message_header(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_header(struct rfxencode *enc, STREAM *s)
 {
     if (rfx_compose_message_sync(enc, s) != 0)
     {
@@ -158,7 +158,7 @@ rfx_compose_message_header(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_frame_begin(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_frame_begin(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 14)
     {
@@ -176,7 +176,7 @@ rfx_compose_message_frame_begin(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_region(struct rfxencode* enc, STREAM* s,
+rfx_compose_message_region(struct rfxencode *enc, STREAM *s,
                            const struct rfx_rect *regions, int num_regions)
 {
     int size;
@@ -385,8 +385,8 @@ rfx_compose_message_tile_argb(struct rfxencode *enc, STREAM *s,
 
 /******************************************************************************/
 static int
-rfx_compose_message_tileset(struct rfxencode* enc, STREAM* s,
-                            char* buf, int width, int height,
+rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
+                            char *buf, int width, int height,
                             int stride_bytes,
                             const struct rfx_tile *tiles, int num_tiles,
                             const char *quants, int num_quants,
@@ -552,7 +552,7 @@ rfx_compose_message_tileset(struct rfxencode* enc, STREAM* s,
 
 /******************************************************************************/
 static int
-rfx_compose_message_frame_end(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_frame_end(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 8)
     {
@@ -567,7 +567,7 @@ rfx_compose_message_frame_end(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 int
-rfx_compose_message_data(struct rfxencode* enc, STREAM* s,
+rfx_compose_message_data(struct rfxencode *enc, STREAM *s,
                          const struct rfx_rect *regions, int num_regions,
                          char *buf, int width, int height, int stride_bytes,
                          const struct rfx_tile *tiles, int num_tiles,
