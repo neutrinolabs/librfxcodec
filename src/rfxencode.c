@@ -47,12 +47,11 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     int cx;
     int dx;
 
-    enc = (struct rfxencode *) malloc(sizeof(struct rfxencode));
+    enc = (struct rfxencode *) calloc(1, sizeof(struct rfxencode));
     if (enc == 0)
     {
         return 1;
     }
-    memset(enc, 0, sizeof(struct rfxencode));
 
     enc->dwt_buffer = (sint16*)(((size_t)(enc->dwt_buffer_a)) & ~15);
     enc->dwt_buffer1 = (sint16*)(((size_t)(enc->dwt_buffer1_a)) & ~15);
