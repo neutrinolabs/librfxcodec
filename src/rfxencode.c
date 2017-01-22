@@ -54,9 +54,9 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     }
     memset(enc, 0, sizeof(struct rfxencode));
 
-    enc->dwt_buffer = (sint16*)(((size_t)(enc->dwt_buffer_a)) & ~15);
-    enc->dwt_buffer1 = (sint16*)(((size_t)(enc->dwt_buffer1_a)) & ~15);
-    enc->dwt_buffer2 = (sint16*)(((size_t)(enc->dwt_buffer2_a)) & ~15);
+    enc->dwt_buffer = (sint16 *) (((size_t) (enc->dwt_buffer_a)) & ~15);
+    enc->dwt_buffer1 = (sint16 *) (((size_t) (enc->dwt_buffer1_a)) & ~15);
+    enc->dwt_buffer2 = (sint16 *) (((size_t) (enc->dwt_buffer2_a)) & ~15);
 
 #if defined(RFX_USE_ACCEL_X86)
     cpuid_x86(1, 0, &ax, &bx, &cx, &dx);
@@ -272,14 +272,14 @@ rfxcodec_encode_create(int width, int height, int format, int flags)
     error = rfxcodec_encode_create_ex(width, height, format, flags, &handle);
     if (error == 0)
     {
-        return handle; 
+        return handle;
     }
     return 0;
 }
 
 /******************************************************************************/
 int
-rfxcodec_encode_destroy(void * handle)
+rfxcodec_encode_destroy(void *handle)
 {
     struct rfxencode *enc;
 

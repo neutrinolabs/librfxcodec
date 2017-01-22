@@ -124,7 +124,7 @@ do { \
 } while (0)
 
 int
-rfx_rlgr3_encode(const sint16* data, uint8* buffer, int buffer_size)
+rfx_rlgr3_encode(const sint16 *data, uint8 *buffer, int buffer_size)
 {
     int k;
     int kp;
