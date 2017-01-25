@@ -41,6 +41,7 @@ AM_CONDITIONAL(WITH_SIMD_AMD64, [test x$simd_arch = xx86_64])
 AM_CONDITIONAL(WITH_SIMD_X86, [test x$simd_arch = xi386])
 
 AC_CONFIG_FILES([Makefile
+                 include/Makefile
                  src/Makefile
                  tests/Makefile
                  rfxcodec.pc
