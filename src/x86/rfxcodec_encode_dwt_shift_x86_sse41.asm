@@ -1,5 +1,6 @@
 ;
 ;Copyright 2016 Jay Sorg
+;Copyright 2017 mirabilos
 ;
 ;Permission to use, copy, modify, distribute, and sell this software and its
 ;documentation for any purpose is hereby granted without fee, provided that
@@ -21,6 +22,29 @@
 
 %ifidn __OUTPUT_FORMAT__,elf
 section .note.GNU-stack noalloc noexec nowrite progbits
+%ifdef PIC
+section .text
+extern _GLOBAL_OFFSET_TABLE_
+..@get_GOT:
+	mov ebx, [esp]
+	ret
+%define lsym(name) ebx + name wrt ..gotoff
+%macro get_GOT 0
+	call ..@get_GOT
+%%getgot:
+	add ebx, _GLOBAL_OFFSET_TABLE_ + $$ - %%getgot wrt ..gotpc
+%endmacro
+%endif
+%else
+; not ELF
+%ifdef PIC
+%error "Position-Independent Code is currently only supported for ELF"
+%endif
+%endif
+%ifndef lsym
+%define lsym(name) name
+%macro get_GOT 0
+%endmacro
 %endif
 
 section .data
@@ -68,15 +92,15 @@ loop1a:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -90,8 +114,8 @@ loop1a:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -248,15 +272,15 @@ loop1c:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -270,8 +294,8 @@ loop1c:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -317,15 +341,15 @@ loop1c:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -339,8 +363,8 @@ loop1c:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -400,15 +424,15 @@ loop1c1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -422,8 +446,8 @@ loop1c1:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -466,15 +490,15 @@ loop1c1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -488,8 +512,8 @@ loop1c1:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -643,15 +667,15 @@ loop1e:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -665,8 +689,8 @@ loop1e:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -715,15 +739,15 @@ loop2e:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -737,8 +761,8 @@ loop2e:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -786,15 +810,15 @@ loop2e:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -808,8 +832,8 @@ loop2e:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -869,15 +893,15 @@ loop1e1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -891,8 +915,8 @@ loop1e1:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -938,15 +962,15 @@ loop2e1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -960,8 +984,8 @@ loop2e1:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -1006,15 +1030,15 @@ loop2e1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     packusdw xmm1, xmm2
     movdqa xmm2, xmm6                   ; src[2n + 1]
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     packusdw xmm2, xmm3
     movdqa xmm3, xmm6                   ; src[2n + 2]
     movdqa xmm4, xmm7
@@ -1028,8 +1052,8 @@ loop2e1:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     packusdw xmm3, xmm4
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -1088,9 +1112,9 @@ loop1f:
     punpcklbw xmm1, xmm0
     punpcklbw xmm2, xmm0
     punpcklbw xmm3, xmm0
-    psubw xmm1, [cw128]
-    psubw xmm2, [cw128]
-    psubw xmm3, [cw128]
+    psubw xmm1, [lsym(cw128)]
+    psubw xmm2, [lsym(cw128)]
+    psubw xmm3, [lsym(cw128)]
     psllw xmm1, 5
     psllw xmm2, 5
     psllw xmm3, 5
@@ -1122,8 +1146,8 @@ loop2f:
     movq xmm3, [esi + 64 * 1 * 2]       ; src[2n + 2]
     punpcklbw xmm2, xmm0
     punpcklbw xmm3, xmm0
-    psubw xmm2, [cw128]
-    psubw xmm3, [cw128]
+    psubw xmm2, [lsym(cw128)]
+    psubw xmm3, [lsym(cw128)]
     psllw xmm2, 5
     psllw xmm3, 5
     movdqa xmm4, xmm1
@@ -1155,7 +1179,7 @@ loop2f:
     movdqa xmm1, xmm3                   ; src[2n]
     movq xmm2, [esi + 64 * 1]           ; src[2n + 1]
     punpcklbw xmm2, xmm0
-    psubw xmm2, [cw128]
+    psubw xmm2, [lsym(cw128)]
     psllw xmm2, 5
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -1196,7 +1220,7 @@ set_quants_hi:
     movd xmm1, eax
     movdqa LHI_SFT, xmm1
     imul eax, 16
-    lea edx, [cwa0]
+    lea edx, [lsym(cwa0)]
     add edx, eax
     movdqa xmm1, [edx]
     movdqa LHI_ADD, xmm1
@@ -1207,7 +1231,7 @@ set_quants_lo:
     movd xmm1, eax
     movdqa LLO_SFT, xmm1
     imul eax, 16
-    lea edx, [cwa0]
+    lea edx, [lsym(cwa0)]
     add edx, eax
     movdqa xmm1, [edx]
     movdqa LLO_ADD, xmm1
@@ -1243,6 +1267,7 @@ PROC _rfxcodec_encode_dwt_shift_x86_sse41
     movdqu [esp], xmm0
     ; save registers
     push ebx
+    get_GOT
     push esi
     push edi
     push ebp
