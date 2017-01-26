@@ -300,7 +300,7 @@ loop1c:
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa xmm6, xmm5                   ; out lo
     paddw xmm6, LLO_ADD
@@ -359,7 +359,7 @@ loop1c:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
@@ -452,7 +452,7 @@ loop1c1:
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa [edx], xmm5                  ; out lo
 
@@ -508,7 +508,7 @@ loop1c1:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
@@ -695,7 +695,7 @@ loop1e:
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa xmm6, xmm5                   ; out lo
     paddw xmm6, LLO_ADD
@@ -758,14 +758,14 @@ loop2e:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa xmm6, xmm5                   ; out lo
     paddw xmm6, LLO_ADD
@@ -828,7 +828,7 @@ loop2e:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
@@ -921,7 +921,7 @@ loop1e1:
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa [edx], xmm5                  ; out lo
 
@@ -981,14 +981,14 @@ loop2e1:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa [edx], xmm5                  ; out lo
 
@@ -1048,7 +1048,7 @@ loop2e1:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
