@@ -22,21 +22,19 @@ if test "x${with_simd}" != "xno"; then
       AC_MSG_RESULT([yes (x86_64)])
       AC_PROG_NASM
       simd_arch=x86_64
+      AC_DEFINE([RFX_USE_ACCEL_AMD64], [1], [Use x86_64 SIMD instructions])
     ;;
     i*86 | x86 | ia32)
       AC_MSG_RESULT([yes (i386)])
       AC_PROG_NASM
       simd_arch=i386
+      AC_DEFINE([RFX_USE_ACCEL_X86], [1], [Use x86 SIMD instructions])
     ;;
     *)
       AC_MSG_RESULT([no ("$host_cpu")])
       AC_MSG_WARN([SIMD support not available for this CPU.  Performance will suffer.])
-      with_simd=no;
     ;;
   esac
-  if test "x${with_simd}" != "xno"; then
-    AC_DEFINE([WITH_SIMD], [1], [Use accelerated SIMD routines.])
-  fi
 fi
 
 AM_CONDITIONAL(WITH_SIMD_AMD64, [test x$simd_arch = xx86_64])
