@@ -17,8 +17,7 @@ X86_ASM = \
 ASM_SOURCES =
 
 AM_CPPFLAGS = \
-  -I$(top_srcdir)/include \
-  -I../include
+  -I$(top_srcdir)/include
 
 if WITH_SIMD_AMD64
 ASM_SOURCES += $(AMD64_ASM)
