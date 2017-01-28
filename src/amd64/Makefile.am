@@ -13,6 +13,7 @@ noinst_LTLIBRARIES = librfxencode-amd64.la
 
 librfxencode_amd64_la_SOURCES = \
   funcs_amd64.h \
+  rfxencode_tile_amd64.c \
   $(AMD64_ASM)
 
 nasm_verbose = $(nasm_verbose_@AM_V@)
