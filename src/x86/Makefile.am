@@ -13,6 +13,7 @@ noinst_LTLIBRARIES = librfxencode-x86.la
 
 librfxencode_x86_la_SOURCES = \
   funcs_x86.h \
+  rfxencode_tile_x86.c \
   $(X86_ASM)
 
 nasm_verbose = $(nasm_verbose_@AM_V@)
