@@ -43,6 +43,8 @@ AM_CONDITIONAL(WITH_SIMD_X86, [test x$simd_arch = xi386])
 AC_CONFIG_FILES([Makefile
                  include/Makefile
                  src/Makefile
+                 src/amd64/Makefile
+                 src/x86/Makefile
                  tests/Makefile
                  rfxcodec.pc
                  rfxcodec-uninstalled.pc
