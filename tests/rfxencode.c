@@ -1,7 +1,7 @@
 /**
  * RFX codec encoder test
  *
- * Copyright 2014-2016 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2014-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@
 #include <sys/stat.h>
 
 #include <rfxcodec_encode.h>
+
+#define MAX_OUT_DATA_BYTES (1024 * 1024)
+#define MAX_BMP_DATA_BYTES (10 * 1024 * 1024)
 
 static char g_in_filename[256] = "";
 static char g_out_filename[256] = "";
@@ -73,9 +76,9 @@ read_bitmap(char *file_name, int *width, int *height, int *bpp, char *bmp_data)
     struct bmp_magic bm;
     struct bmp_hdr bh;
     struct dib_hdr dh;
-    unsigned char* src8;
-    int* src32;
-    int* dst32;
+    unsigned char *src8;
+    int *src32;
+    int *dst32;
 
     fd = open(file_name, O_RDONLY);
     if (fd == -1)
@@ -111,10 +114,10 @@ read_bitmap(char *file_name, int *width, int *height, int *bpp, char *bmp_data)
 
     file_stride_bytes = dh.width * ((dh.bpp + 7) / 8);
     e = (4 - file_stride_bytes) & 3;
-    src8 = (unsigned char*)malloc(file_stride_bytes * 4);
+    src8 = (unsigned char *) malloc(file_stride_bytes * 4);
     for (j = 0; j < dh.height; j++)
     {
-        dst32 = (int*)(bmp_data + (dh.width * dh.height * 4) - ((j + 1) * dh.width * 4));
+        dst32 = (int *) (bmp_data + (dh.width * dh.height * 4) - ((j + 1) * dh.width * 4));
         if (read(fd, src8, file_stride_bytes + e) != file_stride_bytes + e)
         {
             free(src8);
@@ -123,7 +126,7 @@ read_bitmap(char *file_name, int *width, int *height, int *bpp, char *bmp_data)
         }
         if (dh.bpp == 32)
         {
-            src32 = (int*)src8;
+            src32 = (int *) src8;
             for (i = 0; i < dh.width; i++)
             {
                 pixel = src32[i];
@@ -166,8 +169,9 @@ int process(void)
     int out_bytes;
     int error;
     int index;
-    int jndex;
-    void* han;
+    int index_x;
+    int index_y;
+    void *han;
     int num_tiles;
     int num_tiles_x;
     int num_tiles_y;
@@ -179,9 +183,9 @@ int process(void)
     struct rfx_tile *tiles;
     struct rfx_tile *tile;
 
-    out_data = (char *)malloc(1024 * 1024);
-    bmp_data = (char *)malloc(10 * 1024 * 1024);
-    memset(bmp_data, 0xff, 10 * 1024 * 1024);
+    out_data = (char *) malloc(MAX_OUT_DATA_BYTES);
+    bmp_data = (char *) malloc(MAX_BMP_DATA_BYTES);
+    memset(bmp_data, 0xff, MAX_BMP_DATA_BYTES);
 
     if (read_bitmap(g_in_filename, &width, &height, &bpp, bmp_data) != 0)
     {
@@ -213,21 +217,20 @@ int process(void)
     num_tiles_y = (height + 63) / 64;
 
     num_tiles = num_tiles_x * num_tiles_y;
-    tiles = (struct rfx_tile *) malloc(num_tiles * sizeof(struct rfx_tile));
+    tiles = (struct rfx_tile *) calloc(num_tiles, sizeof(struct rfx_tile));
     if (tiles == NULL)
     {
         free(bmp_data);
         free(out_data);
         return 1;
     }
-    memset(tiles, 0, num_tiles * sizeof(struct rfx_tile));
-    for (jndex = 0; jndex < num_tiles_y; jndex++) 
+    for (index_y = 0; index_y < num_tiles_y; index_y++) 
     {
-        for (index = 0; index < num_tiles_x; index++)
+        for (index_x = 0; index_x < num_tiles_x; index_x++)
         {
-            tile = tiles + (jndex * num_tiles_x + index);
-            tile->x = index * 64;
-            tile->y = jndex * 64;
+            tile = tiles + (index_y * num_tiles_x + index_x);
+            tile->x = index_x * 64;
+            tile->y = index_y * 64;
             tile->cx = 64;
             tile->cy = 64;
         }
@@ -279,7 +282,7 @@ int process(void)
     return 0;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     int index;
 
