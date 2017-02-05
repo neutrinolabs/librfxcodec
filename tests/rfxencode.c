@@ -146,7 +146,7 @@ read_bitmap(char *file_name, int *width, int *height, int *bpp, char *bmp_data)
     }
 
     free(src8);
-    close(fd); 
+    close(fd);
     return 0;
 }
 
@@ -224,7 +224,7 @@ int process(void)
         free(out_data);
         return 1;
     }
-    for (index_y = 0; index_y < num_tiles_y; index_y++) 
+    for (index_y = 0; index_y < num_tiles_y; index_y++)
     {
         for (index_x = 0; index_x < num_tiles_x; index_x++)
         {
@@ -243,7 +243,7 @@ int process(void)
             out_bytes = 1024 * 1024;
             error = rfxcodec_encode(han, out_data, &out_bytes, bmp_data,
                                     width, height, width * 4,
-                                    &region, 1, tiles, num_tiles, 0, 0);
+                                    &region, 1, tiles, num_tiles, NULL, 0);
             if (error != 0)
             {
                 break;

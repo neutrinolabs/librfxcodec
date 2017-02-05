@@ -3,7 +3,7 @@ EXTRA_DIST = readme.txt
 AM_CPPFLAGS = \
   -I$(top_srcdir)/include
 
-bin_PROGRAMS = rfxcodectest rfxencode
+check_PROGRAMS = rfxcodectest rfxencode
 
 rfxcodectest_SOURCES = rfxcodectest.c
 
