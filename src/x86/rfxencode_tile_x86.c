@@ -32,6 +32,8 @@
 #include "rfxencode_rlgr1.h"
 #include "rfxencode_rlgr3.h"
 #include "rfxencode_alpha.h"
+#include "rfxencode_diff_rlgr1.h"
+#include "rfxencode_diff_rlgr3.h"
 
 #include "x86/funcs_x86.h"
 
@@ -51,13 +53,7 @@ rfx_encode_component_rlgr1_x86_sse2(struct rfxencode *enc, const char *qtable,
     {
         return 1;
     }
-    //*size = rfxcodec_encode_diff_rlgr1_x86_sse2(enc->dwt_buffer1,
-    //                                            buffer, buffer_size);
-    if (rfx_differential_encode(enc->dwt_buffer1 + 4032, 64) != 0)
-    {
-        return 1;
-    }
-    *size = rfx_rlgr1_encode(enc->dwt_buffer1, buffer, buffer_size);
+    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer1, buffer, buffer_size);
     return 0;
 }
 
@@ -73,13 +69,7 @@ rfx_encode_component_rlgr3_x86_sse2(struct rfxencode *enc, const char *qtable,
     {
         return 1;
     }
-    //*size = rfxcodec_encode_diff_rlgr3_x86_sse2(enc->dwt_buffer1,
-    //                                            buffer, buffer_size);
-    if (rfx_differential_encode(enc->dwt_buffer1 + 4032, 64) != 0)
-    {
-        return 1;
-    }
-    *size = rfx_rlgr3_encode(enc->dwt_buffer1, buffer, buffer_size);
+    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer1, buffer, buffer_size);
     return 0;
 }
 
@@ -95,13 +85,7 @@ rfx_encode_component_rlgr1_x86_sse41(struct rfxencode *enc, const char *qtable,
     {
         return 1;
     }
-    //*size = rfxcodec_encode_diff_rlgr1_x86_sse2(enc->dwt_buffer1,
-    //                                            buffer, buffer_size);
-    if (rfx_differential_encode(enc->dwt_buffer1 + 4032, 64) != 0)
-    {
-        return 1;
-    }
-    *size = rfx_rlgr1_encode(enc->dwt_buffer1, buffer, buffer_size);
+    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer1, buffer, buffer_size);
     return 0;
 }
 
@@ -117,12 +101,6 @@ rfx_encode_component_rlgr3_x86_sse41(struct rfxencode *enc, const char *qtable,
     {
         return 1;
     }
-    //*size = rfxcodec_encode_diff_rlgr3_x86_sse(enc->dwt_buffer1,
-    //                                            buffer, buffer_size);
-    if (rfx_differential_encode(enc->dwt_buffer1 + 4032, 64) != 0)
-    {
-        return 1;
-    }
-    *size = rfx_rlgr3_encode(enc->dwt_buffer1, buffer, buffer_size);
+    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer1, buffer, buffer_size);
     return 0;
 }

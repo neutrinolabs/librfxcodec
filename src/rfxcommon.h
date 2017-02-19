@@ -96,4 +96,43 @@ typedef struct _STREAM STREAM;
 
 #define xnew(_type) (_type *) calloc(1, sizeof(_type))
 
+/*
+  GCC has __builtin_clz that translates to BSR on x86/x64, CLZ on ARM, etc.
+  and emulates the instruction if the hardware does not implement it.
+  Visual C++ 2005 and up has _BitScanReverse
+
+  LZCNT = BSR ^ 31
+
+*/
+#if defined(__GNUC__) && \
+    (defined(__x86__) || defined(_M_IX86) || defined(__i386__) || \
+     defined(__x86_64__) || defined(_M_AMD64) || defined(__AMD64__))
+#define GBSR(_in, _r) do { \
+     int x = _in; \
+     asm volatile ("bsr %0, %0" : "=r" (x) : "0" (x)); \
+    _r = x; \
+} while (0)
+#elif defined(__GNUC__)
+#define GBSR(_in, _r) do { \
+    _r = __builtin_clz(_in) ^ 31; \
+} while (0)
+#elif defined(_MSC_VER) && (_MSC_VER > 1000)
+#define GBSR(_in, _r) do { \
+    unsigned long rv = 0; \
+    _BitScanReverse(&rv, _in); \
+    _r = rv; \
+} while (0)
+#else
+#define GBSR(_in, _r) do { \
+    int rv = -1; \
+    int x = _in; \
+    while (x != 0) \
+    { \
+        rv++; \
+        x = x >> 1; \
+    } \
+    _r = rv; \
+} while (0)
+#endif
+
 #endif
