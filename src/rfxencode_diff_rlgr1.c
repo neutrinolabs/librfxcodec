@@ -23,6 +23,10 @@
  * [MS-RDPRFX] 3.1.8.1.7.3 RLGR1/RLGR3 Pseudocode
  */
 
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
