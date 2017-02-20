@@ -75,7 +75,7 @@ rfx_encode_component_rlgr1_amd64_sse41(struct rfxencode *enc, const char *qtable
                                        uint8 *data,
                                        uint8 *buffer, int buffer_size, int *size)
 {
-    LLOGLN(10, ("rfx_encode_component_rlgr1_amd64_sse2:"));
+    LLOGLN(10, ("rfx_encode_component_rlgr1_amd64_sse41:"));
     if (rfxcodec_encode_dwt_shift_amd64_sse41(qtable, data, enc->dwt_buffer1,
                                               enc->dwt_buffer) != 0)
     {
@@ -91,7 +91,7 @@ rfx_encode_component_rlgr3_amd64_sse41(struct rfxencode *enc, const char *qtable
                                        uint8 *data,
                                        uint8 *buffer, int buffer_size, int *size)
 {
-    LLOGLN(10, ("rfx_encode_component_rlgr3_amd64_sse2:"));
+    LLOGLN(10, ("rfx_encode_component_rlgr3_amd64_sse41:"));
     if (rfxcodec_encode_dwt_shift_amd64_sse41(qtable, data, enc->dwt_buffer1,
                                               enc->dwt_buffer) != 0)
     {
