@@ -42,29 +42,6 @@ rfxcodec_encode_dwt_shift_x86_sse41(const char *qtable,
                                     short *dwt_buffer1,
                                     short *dwt_buffer);
 
-int
-rfxcodec_encode_diff_rlgr1_x86_sse2(short *co,
-                                    void *dst, int dst_bytes);
-int
-rfxcodec_encode_diff_rlgr3_x86_sse2(short *co,
-                                    void *dst, int dst_bytes);
-
-int
-rfxcodec_decode_rlgr1_diff_x86_sse2(void *data, int data_bytes,
-                                    short *out_data);
-int
-rfxcodec_decode_rlgr3_diff_x86_sse2(void *data, int data_bytes,
-                                    short *out_data);
-int
-rfxcodec_decode_shift_idwt_x86_sse2(const char *qtable, short *src, short *dst);
-int
-rfxcodec_decode_yuv2rgb_x86_sse2(short *ydata, short *udata, short *vdata,
-                                 unsigned int *rgbdata, int stride);
-int
-rfxcodec_decode_yuva2argb_x86_sse2(short *ydata, short *udata,
-                                   short *vdata, char *adata,
-                                   unsigned int *rgbdata, int stride);
-
 #ifdef __cplusplus
 }
 #endif
