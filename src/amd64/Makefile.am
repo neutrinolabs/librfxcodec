@@ -1,7 +1,5 @@
 AMD64_ASM = \
   cpuid_amd64.asm \
-  rfxcodec_encode_diff_rlgr1_amd64_sse2.asm \
-  rfxcodec_encode_diff_rlgr3_amd64_sse2.asm \
   rfxcodec_encode_dwt_shift_amd64_sse2.asm \
   rfxcodec_encode_dwt_shift_amd64_sse41.asm
 

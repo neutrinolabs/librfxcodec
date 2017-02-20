@@ -1,7 +1,5 @@
 X86_ASM = \
   cpuid_x86.asm \
-  rfxcodec_encode_diff_rlgr1_x86_sse2.asm \
-  rfxcodec_encode_diff_rlgr3_x86_sse2.asm \
   rfxcodec_encode_dwt_shift_x86_sse2.asm \
   rfxcodec_encode_dwt_shift_x86_sse41.asm
 
