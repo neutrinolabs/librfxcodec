@@ -100,7 +100,7 @@
 } while (0)
 
 int
-rfx_encode_diff_rlgr1(sint16* coef, uint8* cdata, int cdata_size)
+rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size)
 {
     int k;
     int kp;
@@ -118,7 +118,7 @@ rfx_encode_diff_rlgr1(sint16* coef, uint8* cdata, int cdata_size)
 
     int bit_count;
     unsigned int bits;
-    uint8* cdata_org;
+    uint8 *cdata_org;
 
     uint32 twoMs;
 
