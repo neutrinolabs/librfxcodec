@@ -42,7 +42,7 @@
 /******************************************************************************/
 int
 rfx_encode_component_rlgr1_amd64_sse2(struct rfxencode *enc, const char *qtable,
-                                      uint8 *data,
+                                      const uint8 *data,
                                       uint8 *buffer, int buffer_size, int *size)
 {
     LLOGLN(10, ("rfx_encode_component_rlgr1_amd64_sse2:"));
@@ -64,7 +64,7 @@ rfx_encode_component_rlgr1_amd64_sse2(struct rfxencode *enc, const char *qtable,
 /******************************************************************************/
 int
 rfx_encode_component_rlgr3_amd64_sse2(struct rfxencode *enc, const char *qtable,
-                                      uint8 *data,
+                                      const uint8 *data,
                                       uint8 *buffer, int buffer_size, int *size)
 {
     LLOGLN(10, ("rfx_encode_component_rlgr3_amd64_sse2:"));
@@ -86,7 +86,7 @@ rfx_encode_component_rlgr3_amd64_sse2(struct rfxencode *enc, const char *qtable,
 /******************************************************************************/
 int
 rfx_encode_component_rlgr1_amd64_sse41(struct rfxencode *enc, const char *qtable,
-                                       uint8 *data,
+                                       const uint8 *data,
                                        uint8 *buffer, int buffer_size, int *size)
 {
     LLOGLN(10, ("rfx_encode_component_rlgr1_amd64_sse2:"));
@@ -108,7 +108,7 @@ rfx_encode_component_rlgr1_amd64_sse41(struct rfxencode *enc, const char *qtable
 /******************************************************************************/
 int
 rfx_encode_component_rlgr3_amd64_sse41(struct rfxencode *enc, const char *qtable,
-                                       uint8 *data,
+                                       const uint8 *data,
                                        uint8 *buffer, int buffer_size, int *size)
 {
     LLOGLN(10, ("rfx_encode_component_rlgr3_amd64_sse2:"));

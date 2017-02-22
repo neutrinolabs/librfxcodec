@@ -33,12 +33,12 @@ cpuid_amd64(int eax_in, int ecx_in, int *eax, int *ebx, int *ecx, int *edx);
 
 int
 rfxcodec_encode_dwt_shift_amd64_sse2(const char *qtable,
-                                     unsigned char *data,
+                                     const unsigned char *data,
                                      short *dwt_buffer1,
                                      short *dwt_buffer);
 int
 rfxcodec_encode_dwt_shift_amd64_sse41(const char *qtable,
-                                      unsigned char *data,
+                                      const unsigned char *data,
                                       short *dwt_buffer1,
                                       short *dwt_buffer);
 int
