@@ -28,33 +28,33 @@
 
 int
 rfx_encode_component_rlgr1(struct rfxencode *enc, const char *qtable,
-                           uint8 *data,
+                           const uint8 *data,
                            uint8 *buffer, int buffer_size, int *size);
 int
 rfx_encode_component_rlgr3(struct rfxencode *enc, const char *qtable,
-                           uint8 *data,
+                           const uint8 *data,
                            uint8 *buffer, int buffer_size, int *size);
 int
-rfx_encode_rgb(struct rfxencode *enc, char *rgb_data,
+rfx_encode_rgb(struct rfxencode *enc, const char *rgb_data,
                int width, int height, int stride_bytes,
                const char *y_quants, const char *u_quants,
                const char *v_quants,
                STREAM *data_out, int *y_size, int *cb_size, int *cr_size);
 int
-rfx_encode_argb(struct rfxencode *enc, char *argb_data,
+rfx_encode_argb(struct rfxencode *enc, const char *argb_data,
                 int width, int height, int stride_bytes,
                 const char *y_quants, const char *cb_quants,
                 const char *cr_quants,
                 STREAM *data_out, int *y_size, int *u_size,
                 int *v_size, int *a_size);
 int
-rfx_encode_yuv(struct rfxencode *enc, char *yuv_data,
+rfx_encode_yuv(struct rfxencode *enc, const char *yuv_data,
                int width, int height, int stride_bytes,
                const char *y_quants, const char *u_quants,
                const char *v_quants,
                STREAM *data_out, int *y_size, int *u_size, int *v_size);
 int
-rfx_encode_yuva(struct rfxencode *enc, char *yuv_data,
+rfx_encode_yuva(struct rfxencode *enc, const char *yuv_data,
                 int width, int height, int stride_bytes,
                 const char *y_quants, const char *u_quants,
                 const char *v_quants,
@@ -63,35 +63,35 @@ rfx_encode_yuva(struct rfxencode *enc, char *yuv_data,
 
 int
 rfx_encode_component_rlgr1_x86_sse2(struct rfxencode *enc, const char *qtable,
-                                    uint8 *data,
+                                    const uint8 *data,
                                     uint8 *buffer, int buffer_size, int *size);
 int
 rfx_encode_component_rlgr3_x86_sse2(struct rfxencode *enc, const char *qtable,
-                                    uint8 *data,
+                                    const uint8 *data,
                                     uint8 *buffer, int buffer_size, int *size);
 int
 rfx_encode_component_rlgr1_x86_sse41(struct rfxencode *enc, const char *qtable,
-                                     uint8 *data,
+                                     const uint8 *data,
                                      uint8 *buffer, int buffer_size, int *size);
 int
 rfx_encode_component_rlgr3_x86_sse41(struct rfxencode *enc, const char *qtable,
-                                     uint8 *data,
+                                     const uint8 *data,
                                      uint8 *buffer, int buffer_size, int *size);
 int
 rfx_encode_component_rlgr1_amd64_sse2(struct rfxencode *enc, const char *qtable,
-                                      uint8 *data,
+                                      const uint8 *data,
                                       uint8 *buffer, int buffer_size, int *size);
 int
 rfx_encode_component_rlgr3_amd64_sse2(struct rfxencode *enc, const char *qtable,
-                                      uint8 *data,
+                                      const uint8 *data,
                                       uint8 *buffer, int buffer_size, int *size);
 int
 rfx_encode_component_rlgr1_amd64_sse41(struct rfxencode *enc, const char *qtable,
-                                       uint8 *data,
+                                       const uint8 *data,
                                        uint8 *buffer, int buffer_size, int *size);
 int
 rfx_encode_component_rlgr3_amd64_sse41(struct rfxencode *enc, const char *qtable,
-                                       uint8 *data,
+                                       const uint8 *data,
                                        uint8 *buffer, int buffer_size, int *size);
 
 #endif
