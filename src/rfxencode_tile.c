@@ -53,7 +53,7 @@
 
 /******************************************************************************/
 static int
-rfx_encode_format_rgb(char *rgb_data, int width, int height,
+rfx_encode_format_rgb(const char *rgb_data, int width, int height,
                       int stride_bytes, int pixel_format,
                       uint8 *r_buf, uint8 *g_buf, uint8 *b_buf)
 {
@@ -221,7 +221,7 @@ rfx_encode_format_rgb(char *rgb_data, int width, int height,
 
 /******************************************************************************/
 static int
-rfx_encode_format_argb(char *argb_data, int width, int height,
+rfx_encode_format_argb(const char *argb_data, int width, int height,
                        int stride_bytes, int pixel_format,
                        uint8 *a_buf, uint8 *r_buf, uint8 *g_buf, uint8 *b_buf)
 {
@@ -439,7 +439,8 @@ rfx_encode_rgb_to_yuv(uint8 *y_r_buf, uint8 *u_g_buf, uint8 *v_b_buf)
 /******************************************************************************/
 int
 rfx_encode_component_rlgr1(struct rfxencode *enc, const char *qtable,
-                           uint8 *data, uint8 *buffer, int buffer_size, int *size)
+                           const uint8 *data,
+                           uint8 *buffer, int buffer_size, int *size)
 {
     LLOGLN(10, ("rfx_encode_component_rlgr1:"));
     if (rfx_dwt_2d_encode(data, enc->dwt_buffer1, enc->dwt_buffer) != 0)
@@ -461,7 +462,8 @@ rfx_encode_component_rlgr1(struct rfxencode *enc, const char *qtable,
 /******************************************************************************/
 int
 rfx_encode_component_rlgr3(struct rfxencode *enc, const char *qtable,
-                           uint8 *data, uint8 *buffer, int buffer_size, int *size)
+                           const uint8 *data,
+                           uint8 *buffer, int buffer_size, int *size)
 {
     LLOGLN(10, ("rfx_encode_component_rlgr3:"));
     if (rfx_dwt_2d_encode(data, enc->dwt_buffer1, enc->dwt_buffer) != 0)
@@ -482,7 +484,7 @@ rfx_encode_component_rlgr3(struct rfxencode *enc, const char *qtable,
 
 /******************************************************************************/
 int
-rfx_encode_rgb(struct rfxencode *enc, char *rgb_data,
+rfx_encode_rgb(struct rfxencode *enc, const char *rgb_data,
                int width, int height, int stride_bytes,
                const char *y_quants, const char *u_quants,
                const char *v_quants,
@@ -537,7 +539,7 @@ rfx_encode_rgb(struct rfxencode *enc, char *rgb_data,
 
 /******************************************************************************/
 int
-rfx_encode_argb(struct rfxencode *enc, char *rgb_data,
+rfx_encode_argb(struct rfxencode *enc, const char *rgb_data,
                 int width, int height, int stride_bytes,
                 const char *y_quants, const char *u_quants,
                 const char *v_quants,
@@ -598,7 +600,7 @@ rfx_encode_argb(struct rfxencode *enc, char *rgb_data,
 
 /******************************************************************************/
 int
-rfx_encode_yuv(struct rfxencode *enc, char *yuv_data,
+rfx_encode_yuv(struct rfxencode *enc, const char *yuv_data,
                int width, int height, int stride_bytes,
                const char *y_quants, const char *u_quants,
                const char *v_quants,
@@ -640,22 +642,22 @@ rfx_encode_yuv(struct rfxencode *enc, char *yuv_data,
 
 /******************************************************************************/
 int
-rfx_encode_yuva(struct rfxencode *enc, char *yuva_data,
+rfx_encode_yuva(struct rfxencode *enc, const char *yuva_data,
                 int width, int height, int stride_bytes,
                 const char *y_quants, const char *u_quants,
                 const char *v_quants,
                 STREAM *data_out, int *y_size, int *u_size,
                 int *v_size, int *a_size)
 {
-    uint8 *y_buffer;
-    uint8 *u_buffer;
-    uint8 *v_buffer;
-    uint8 *a_buffer;
+    const uint8 *y_buffer;
+    const uint8 *u_buffer;
+    const uint8 *v_buffer;
+    const uint8 *a_buffer;
 
-    y_buffer = (uint8 *) yuva_data;
-    u_buffer = (uint8 *) (yuva_data + RFX_YUV_BTES);
-    v_buffer = (uint8 *) (yuva_data + RFX_YUV_BTES * 2);
-    a_buffer = (uint8 *) (yuva_data + RFX_YUV_BTES * 3);
+    y_buffer = (const uint8 *) yuva_data;
+    u_buffer = (const uint8 *) (yuva_data + RFX_YUV_BTES);
+    v_buffer = (const uint8 *) (yuva_data + RFX_YUV_BTES * 2);
+    a_buffer = (const uint8 *) (yuva_data + RFX_YUV_BTES * 3);
     if (enc->rfx_encode(enc, y_quants, y_buffer,
                         stream_get_tail(data_out),
                         stream_get_left(data_out),

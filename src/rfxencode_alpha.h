@@ -21,7 +21,7 @@
 #define __RFXCODEC_ENCODE_ALPHA_H
 
 int
-rfx_encode_plane(struct rfxencode *enc, uint8 *plane, int cx, int cy,
+rfx_encode_plane(struct rfxencode *enc, const uint8 *plane, int cx, int cy,
                  STREAM *s);
 
 #endif
