@@ -606,13 +606,13 @@ rfx_encode_yuv(struct rfxencode *enc, const char *yuv_data,
                const char *v_quants,
                STREAM *data_out, int *y_size, int *u_size, int *v_size)
 {
-    uint8 *y_buffer;
-    uint8 *u_buffer;
-    uint8 *v_buffer;
+    const uint8 *y_buffer;
+    const uint8 *u_buffer;
+    const uint8 *v_buffer;
 
-    y_buffer = (uint8 *) yuv_data;
-    u_buffer = (uint8 *) (yuv_data + RFX_YUV_BTES);
-    v_buffer = (uint8 *) (yuv_data + RFX_YUV_BTES * 2);
+    y_buffer = (const uint8 *) yuv_data;
+    u_buffer = (const uint8 *) (yuv_data + RFX_YUV_BTES);
+    v_buffer = (const uint8 *) (yuv_data + RFX_YUV_BTES * 2);
     if (enc->rfx_encode(enc, y_quants, y_buffer,
                         stream_get_tail(data_out),
                         stream_get_left(data_out),
