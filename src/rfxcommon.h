@@ -104,15 +104,7 @@ typedef struct _STREAM STREAM;
   LZCNT = BSR ^ 31
 
 */
-#if defined(__GNUC__) && \
-    (defined(__x86__) || defined(_M_IX86) || defined(__i386__) || \
-     defined(__x86_64__) || defined(_M_AMD64) || defined(__AMD64__))
-#define GBSR(_in, _r) do { \
-     int x = _in; \
-     asm volatile ("bsr %0, %0" : "=r" (x) : "0" (x)); \
-    _r = x; \
-} while (0)
-#elif defined(__GNUC__)
+#if defined(__GNUC__)
 #define GBSR(_in, _r) do { \
     _r = __builtin_clz(_in) ^ 31; \
 } while (0)

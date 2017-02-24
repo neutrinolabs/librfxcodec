@@ -33,6 +33,16 @@
 
 #include "rfxcommon.h"
 
+#define PIXELS_IN_TILE 4096
+
+/* Constants used within the RLGR1/RLGR3 algorithm */
+#define KPMAX   (80)  /* max value for kp or krp */
+#define LSGR    (3)   /* shift count to convert kp to k */
+#define UP_GR   (4)   /* increase in kp after a zero run in RL mode */
+#define DN_GR   (6)   /* decrease in kp after a nonzero symbol in RL mode */
+#define UQ_GR   (3)   /* increase in kp after nonzero symbol in GR mode */
+#define DQ_GR   (3)   /* decrease in kp after zero symbol in GR mode */
+
 #define GetNextInput do { \
     input = *coef; \
     coef++; \
@@ -48,12 +58,11 @@
     } \
 } while (0)
 
-/*CodeGR(krp, lmag);*/ /* output GR code for (mag - 1) */
+/* output GR code for (mag - 1) */
 #define CodeGR(_krp, _lmag) do { \
-    int lkr = _krp >> 3; \
+    int lkr = _krp >> LSGR; \
     /* unary part of GR code */ \
     int lvk = _lmag >> lkr; \
-    /*OutputBit(lvk, 1);*/ \
     int llvk = lvk; \
     while (llvk >= 8) \
     { \
@@ -66,14 +75,12 @@
     bits <<= llvk; \
     bits |= (1 << llvk) - 1; \
     bit_count += llvk; \
-    /*OutputBit(1, 0);*/ \
     bits <<= 1; \
     bit_count++; \
     CheckWrite; \
     /* remainder part of GR code, if needed */ \
     if (lkr) \
     { \
-        /*OutputBits(lkr, _lmag & ((1 << lkr) - 1));*/ \
         bits <<= lkr; \
         bits |= _lmag & ((1 << lkr) - 1); \
         bit_count += lkr; \
@@ -81,21 +88,11 @@
     /* update _krp, only if it is not equal to 1 */ \
     if (lvk == 0) \
     { \
-        /*UpdateParam(_krp, -2, lkr);*/ \
-        _krp -= 2; \
-        if (_krp < 0) \
-        { \
-            _krp = 0; \
-        } \
+        _krp = MAX(0, _krp - 2); \
     } \
     else if (lvk > 1) \
     { \
-        /*UpdateParam(_krp, lvk, lkr);*/ \
-        _krp += lvk; \
-        if (_krp > 80) \
-        { \
-            _krp = 80; \
-        } \
+        _krp = MIN(KPMAX, _krp + lvk); \
     } \
 } while (0)
 
@@ -122,24 +119,23 @@ rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size)
 
     uint32 twoMs;
 
-    for (k = 4095; k > 4032; k--)
+    /* the last 64 bytes are diff */
+    for (k = PIXELS_IN_TILE - 1; k > PIXELS_IN_TILE - 64; k--)
     {
         coef[k] -= coef[k - 1];
     }
 
-    //rfx_bitstream_attach(bs, cdata, cdata_size);
-
     /* initialize the parameters */
     k = 1;
-    kp = 1 << 3;
-    krp = 1 << 3;
+    kp = 1 << LSGR;
+    krp = 1 << LSGR;
 
     bit_count = 0;
     bits = 0;
     cdata_org = cdata;
 
     /* process all the input coefficients */
-    coef_size = 4096;
+    coef_size = PIXELS_IN_TILE;
     while (coef_size > 0)
     {
         if (k)
@@ -162,7 +158,6 @@ rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size)
             while (numZeros >= runmax)
             {
 
-                //OutputBit(1, 0); /* output a zero bit */
                 bits <<= 1;
                 bit_count++;
 
@@ -170,42 +165,36 @@ rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size)
 
                 numZeros -= runmax;
 
-                //UpdateParam(kp, UP_GR, k); /* update kp, k */
-                kp += 4;
-                if (kp > 80)
-                {
-                    kp = 80;
-                }
-                k = kp >> 3;
+                kp = MIN(KPMAX, kp + UP_GR);
+                k = kp >> LSGR;
 
                 runmax = 1 << k;
             }
 
             /* output a 1 to terminate runs */
-
-            //OutputBit(1, 1);
             bits <<= 1;
             bits |= 1;
             bit_count++;
 
             /* output the remaining run length using k bits */
-
-            //OutputBits(k, numZeros);
             bits <<= k;
-            //bits |= numZeros & ((1 << k) - 1);
             bits |= numZeros;
             bit_count += k;
 
             CheckWrite;
 
-            /* note: when we reach here and the last byte being encoded is 0, we still
-               need to output the last two bits, otherwise mstsc will crash */
-
             /* encode the nonzero value using GR coding */
-            mag = (input < 0 ? -input : input); /* absolute value of input coefficient */
-            sign = (input < 0 ? 1 : 0);  /* sign of input coefficient */
+            if (input < 0)
+            {
+                mag = -input;
+                sign = 1;
+            }
+            else
+            {
+                mag = input;
+                sign = 0;
+            }
 
-            //OutputBit(1, sign); /* output the sign bit */
             bits <<= 1;
             bits |= sign;
             bit_count++;
@@ -215,13 +204,8 @@ rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size)
             CodeGR(krp, lmag); /* output GR code for (mag - 1) */
             CheckWrite;
 
-            //UpdateParam(kp, -DN_GR, k);
-            kp -= 6;
-            if (kp < 0)
-            {
-                kp = 0;
-            }
-            k = kp >> 3;
+            kp = MAX(0, kp - DN_GR);
+            k = kp >> LSGR;
 
         }
         else
@@ -239,27 +223,15 @@ rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size)
             CheckWrite;
 
             /* update k, kp */
-            /* NOTE: as of Aug 2011, the algorithm is still wrongly documented
-               and the update direction is reversed */
             if (twoMs)
             {
-                //UpdateParam(kp, -DQ_GR, k);
-                kp -= 3;
-                if (kp < 0)
-                {
-                    kp = 0;
-                }
-                k = kp >> 3;
+                kp = MAX(0, kp - DQ_GR);
+                k = kp >> LSGR;
             }
             else
             {
-                //UpdateParam(kp, UQ_GR, k);
-                kp += 3;
-                if (kp > 80)
-                {
-                    kp = 80;
-                }
-                k = kp >> 3;
+                kp = MIN(KPMAX, kp + UQ_GR);
+                k = kp >> LSGR;
             }
 
         }
@@ -273,7 +245,6 @@ rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size)
         bit_count = 0;
     }
 
-    //processed_size = rfx_bitstream_get_processed_bytes(bs);
     processed_size = cdata - cdata_org;
 
     return processed_size;
