@@ -3,7 +3,7 @@
  * RemoteFX Codec Library
  *
  * Copyright 2011 Vic Lee
- * Copyright 2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2015-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
