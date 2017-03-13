@@ -20,4 +20,5 @@ nasm_verbose_0 = @echo "  NASM     $@";
 
 .asm.lo:
 	$(nasm_verbose)$(LIBTOOL) $(AM_V_lt) --mode=compile \
-	  $(top_srcdir)/src/nasm_lt.sh $(NASM) $(NAFLAGS) -I$(srcdir) -I. $< -o $@
+	  $(top_srcdir)/src/nasm_lt.sh $(NASM) $(NAFLAGS) \
+	  -I$(top_srcdir)/src $< -o $@
