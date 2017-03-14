@@ -11,6 +11,9 @@ AC_C_CONST
 AC_PROG_LIBTOOL
 PKG_INSTALLDIR
 
+AX_CFLAGS_WARN_ALL
+AX_APPEND_COMPILE_FLAGS([-Wwrite-strings])
+
 # SIMD is optional
 AC_ARG_WITH([simd],
     AC_HELP_STRING([--without-simd],[Omit SIMD extensions.]))
