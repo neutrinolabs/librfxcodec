@@ -42,8 +42,6 @@ PREPARE_RODATA
     cwa8192  times 8 dw 8192  ; 14
     cwa16384 times 8 dw 16384 ; 15
 
-section .text
-
 ;******************************************************************************
 ; source 16 bit signed, 16 pixel width
 rfx_dwt_2d_encode_block_horiz_16_16:

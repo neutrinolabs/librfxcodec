@@ -43,8 +43,6 @@ PREPARE_RODATA
     cwa8192  times 8 dw 8192  ; 14
     cwa16384 times 8 dw 16384 ; 15
 
-section .text
-
 %define LHI_ADD  [esp + 1 * 16 + 4]
 %define LHI_SFT  [esp + 2 * 16 + 4]
 %define LLO_ADD  [esp + 3 * 16 + 4]
