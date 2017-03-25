@@ -30,3 +30,4 @@ PROC cpuid_amd64
     ; restore registers
     pop rbx
     ret
+END_OF_FILE

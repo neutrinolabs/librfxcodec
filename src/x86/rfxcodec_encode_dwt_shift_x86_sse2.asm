@@ -1516,3 +1516,4 @@ PROC rfxcodec_encode_dwt_shift_x86_sse2
     ; return value
     mov eax, 0
     ret
+END_OF_FILE
