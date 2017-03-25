@@ -1,3 +1,5 @@
+NAFLAGS += -DASM_ARCH_AMD64
+
 AMD64_ASM = \
   cpuid_amd64.asm \
   rfxcodec_encode_dwt_shift_amd64_sse2.asm \
