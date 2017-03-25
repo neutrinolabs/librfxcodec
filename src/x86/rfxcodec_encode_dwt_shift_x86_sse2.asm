@@ -1546,4 +1546,3 @@ PROC rfxcodec_encode_dwt_shift_x86_sse2
     mov eax, 0
     ret
     align 16
-

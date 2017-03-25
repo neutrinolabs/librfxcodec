@@ -1356,4 +1356,3 @@ PROC rfxcodec_encode_dwt_shift_amd64_sse41
     pop rbx
     ret
     align 16
-
