@@ -1232,7 +1232,7 @@ PROC rfxcodec_encode_dwt_shift_x86_sse41
     movdqu [esp], xmm0
     ; save registers
     push ebx
-    get_GOT
+    RETRIEVE_RODATA
     push esi
     push edi
     push ebp
