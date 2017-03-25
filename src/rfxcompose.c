@@ -3,7 +3,7 @@
  * RemoteFX Codec Library
  *
  * Copyright 2011 Vic Lee
- * Copyright 2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2015-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -208,7 +208,8 @@ rfx_compose_message_region(struct rfxencode *enc, STREAM *s,
 /******************************************************************************/
 static int
 rfx_compose_message_tile_yuv(struct rfxencode *enc, STREAM *s,
-                             char *tile_data, int tile_width, int tile_height,
+                             const char *tile_data,
+                             int tile_width, int tile_height,
                              int stride_bytes, const char *quantVals,
                              int quantIdxY, int quantIdxCb, int quantIdxCr,
                              int xIdx, int yIdx)
@@ -251,7 +252,8 @@ rfx_compose_message_tile_yuv(struct rfxencode *enc, STREAM *s,
 /******************************************************************************/
 static int
 rfx_compose_message_tile_yuva(struct rfxencode *enc, STREAM *s,
-                              char *tile_data, int tile_width, int tile_height,
+                              const char *tile_data,
+                              int tile_width, int tile_height,
                               int stride_bytes, const char *quantVals,
                               int quantIdxY, int quantIdxCb, int quantIdxCr,
                               int xIdx, int yIdx)
@@ -296,7 +298,8 @@ rfx_compose_message_tile_yuva(struct rfxencode *enc, STREAM *s,
 /******************************************************************************/
 static int
 rfx_compose_message_tile_rgb(struct rfxencode *enc, STREAM *s,
-                             char *tile_data, int tile_width, int tile_height,
+                             const char *tile_data,
+                             int tile_width, int tile_height,
                              int stride_bytes, const char *quantVals,
                              int quantIdxY, int quantIdxCb, int quantIdxCr,
                              int xIdx, int yIdx)
@@ -339,7 +342,8 @@ rfx_compose_message_tile_rgb(struct rfxencode *enc, STREAM *s,
 /******************************************************************************/
 static int
 rfx_compose_message_tile_argb(struct rfxencode *enc, STREAM *s,
-                              char *tile_data, int tile_width, int tile_height,
+                              const char *tile_data,
+                              int tile_width, int tile_height,
                               int stride_bytes, const char *quantVals,
                               int quantIdxY, int quantIdxCb, int quantIdxCr,
                               int xIdx, int yIdx)
@@ -386,7 +390,7 @@ rfx_compose_message_tile_argb(struct rfxencode *enc, STREAM *s,
 /******************************************************************************/
 static int
 rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
-                            char *buf, int width, int height,
+                            const char *buf, int width, int height,
                             int stride_bytes,
                             const struct rfx_tile *tiles, int num_tiles,
                             const char *quants, int num_quants,
@@ -407,7 +411,7 @@ rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
     int y;
     int cx;
     int cy;
-    char *tile_data;
+    const char *tile_data;
 
     LLOGLN(10, ("rfx_compose_message_tileset:"));
     if (quants == 0)
@@ -569,7 +573,8 @@ rfx_compose_message_frame_end(struct rfxencode *enc, STREAM *s)
 int
 rfx_compose_message_data(struct rfxencode *enc, STREAM *s,
                          const struct rfx_rect *regions, int num_regions,
-                         char *buf, int width, int height, int stride_bytes,
+                         const char *buf, int width, int height,
+                         int stride_bytes,
                          const struct rfx_tile *tiles, int num_tiles,
                          const char *quants, int num_quants, int flags)
 {

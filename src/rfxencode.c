@@ -1,7 +1,7 @@
 /**
  * RFX codec encoder
  *
- * Copyright 2014-2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2014-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -298,7 +298,7 @@ rfxcodec_encode_destroy(void *handle)
 /******************************************************************************/
 int
 rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
-                   char *buf, int width, int height, int stride_bytes,
+                   const char *buf, int width, int height, int stride_bytes,
                    const struct rfx_rect *regions, int num_regions,
                    const struct rfx_tile *tiles, int num_tiles,
                    const char *quants, int num_quants, int flags)
@@ -334,7 +334,7 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
 /******************************************************************************/
 int
 rfxcodec_encode(void *handle, char *cdata, int *cdata_bytes,
-                char *buf, int width, int height, int stride_bytes,
+                const char *buf, int width, int height, int stride_bytes,
                 const struct rfx_rect *regions, int num_regions,
                 const struct rfx_tile *tiles, int num_tiles,
                 const char *quants, int num_quants)

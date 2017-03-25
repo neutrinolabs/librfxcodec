@@ -1,7 +1,5 @@
 X86_ASM = \
   cpuid_x86.asm \
-  rfxcodec_encode_diff_rlgr1_x86_sse2.asm \
-  rfxcodec_encode_diff_rlgr3_x86_sse2.asm \
   rfxcodec_encode_dwt_shift_x86_sse2.asm \
   rfxcodec_encode_dwt_shift_x86_sse41.asm
 
@@ -22,4 +20,5 @@ nasm_verbose_0 = @echo "  NASM     $@";
 
 .asm.lo:
 	$(nasm_verbose)$(LIBTOOL) $(AM_V_lt) --mode=compile \
-	  $(top_srcdir)/src/nasm_lt.sh $(NASM) $(NAFLAGS) -I$(srcdir) -I. $< -o $@
+	  $(top_srcdir)/src/nasm_lt.sh $(NASM) $(NAFLAGS) \
+	  -I$(top_srcdir)/src $< -o $@

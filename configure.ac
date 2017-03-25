@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script
 
 AC_PREREQ(2.59)
-AC_INIT([rfxcodec], [0.1.0], [jay.sorg@gmail.com])
+AC_INIT([rfxcodec], [0.1.0], [xrdp-devel@googlegroups.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.6 foreign])
 AC_CONFIG_MACRO_DIR([m4])
@@ -10,6 +10,9 @@ AC_PROG_CC
 AC_C_CONST
 AC_PROG_LIBTOOL
 PKG_INSTALLDIR
+
+AX_CFLAGS_WARN_ALL
+AX_APPEND_COMPILE_FLAGS([-Wwrite-strings])
 
 # SIMD is optional
 AC_ARG_WITH([simd],

@@ -20,8 +20,9 @@
 ;
 ;x86 asm dwt
 
+%include "common.asm"
+
 %ifidn __OUTPUT_FORMAT__,elf
-section .note.GNU-stack noalloc noexec nowrite progbits
 %ifdef PIC
 section .text
 extern _GLOBAL_OFFSET_TABLE_
@@ -70,12 +71,6 @@ section .data
     cwa16384 times 8 dw 16384 ; 15
 
 section .text
-
-%macro PROC 1
-    align 16
-    global %1
-    %1:
-%endmacro
 
 %define LHI_ADD  [esp + 1 * 16 + 4]
 %define LHI_SFT  [esp + 2 * 16 + 4]
@@ -1381,11 +1376,7 @@ set_quants_lo:
 ;                                   short *work_buffer);
 
 ;******************************************************************************
-%ifidn __OUTPUT_FORMAT__,elf
 PROC rfxcodec_encode_dwt_shift_x86_sse2
-%else
-PROC _rfxcodec_encode_dwt_shift_x86_sse2
-%endif
     ; align stack
     mov eax, esp
     sub eax, 0x10
