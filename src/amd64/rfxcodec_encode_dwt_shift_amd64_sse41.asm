@@ -21,8 +21,7 @@
 
 %include "common.asm"
 
-section .data
-    align 16
+PREPARE_RODATA
     cw128    times 8 dw 128
     cdFFFF   times 4 dd 65535
     ; these are 1 << (factor - 1) 0 to 15 is factor
