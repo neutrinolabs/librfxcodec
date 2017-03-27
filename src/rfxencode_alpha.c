@@ -2,7 +2,7 @@
  * librfxcodec: A Remote Desktop Protocol client.
  * RemoteFX Codec Library
  *
- * Copyright 2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2015-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,10 +39,10 @@
 #if 1
 /*****************************************************************************/
 static int
-fdelta(char *in_plane, char *out_plane, int cx, int cy)
+fdelta(const char *in_plane, char *out_plane, int cx, int cy)
 {
     char delta;
-    char *src8;
+    const char *src8;
     char *dst8;
     int index;
     int jndex;
@@ -247,15 +251,15 @@ fpack(char *plane, int cx, int cy, STREAM *s)
 
 /*****************************************************************************/
 int
-rfx_encode_plane(struct rfxencode *enc, uint8 *plane, int cx, int cy,
+rfx_encode_plane(struct rfxencode *enc, const uint8 *plane, int cx, int cy,
                  STREAM *s)
 {
-    char *org_plane;
+    const char *org_plane;
     char *delta_plane;
     int bytes;
     uint8 *holdp;
 
-    org_plane = (char *) plane;
+    org_plane = (const char *) plane;
     delta_plane = (char *) (enc->dwt_buffer1);
     fdelta(org_plane, delta_plane, cx, cy);
     holdp = s->p;

@@ -3,7 +3,7 @@
  * RemoteFX Codec Library - Quantization
  *
  * Copyright 2011 Vic Lee
- * Copyright 2014-2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2014-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,9 +55,9 @@ static int divround(int d1, int d2)
 
 /******************************************************************************/
 static int
-rfx_quantization_encode_block(sint16* buffer, int buffer_size, uint32 factor)
+rfx_quantization_encode_block(sint16 *buffer, int buffer_size, uint32 factor)
 {
-    sint16* dst;
+    sint16 *dst;
     sint16 scale_value;
 
     if (factor == 0)
@@ -72,9 +76,9 @@ rfx_quantization_encode_block(sint16* buffer, int buffer_size, uint32 factor)
 #if 0
 /******************************************************************************/
 static int
-rfx_quantization_encode_block(sint16* buffer, int buffer_size, uint32 factor)
+rfx_quantization_encode_block(sint16 *buffer, int buffer_size, uint32 factor)
 {
-    sint16* dst;
+    sint16 *dst;
 
     if (factor == 0)
     {
@@ -91,9 +95,9 @@ rfx_quantization_encode_block(sint16* buffer, int buffer_size, uint32 factor)
 #if 0
 /******************************************************************************/
 static int
-rfx_quantization_encode_block(sint16* buffer, int buffer_size, uint32 factor)
+rfx_quantization_encode_block(sint16 *buffer, int buffer_size, uint32 factor)
 {
-    sint16* dst;
+    sint16 *dst;
     sint16 half;
 
     if (factor == 0)
@@ -113,9 +117,9 @@ rfx_quantization_encode_block(sint16* buffer, int buffer_size, uint32 factor)
 #if 1
 /******************************************************************************/
 static int
-rfx_quantization_encode_block(sint16* buffer, int buffer_size, uint32 factor)
+rfx_quantization_encode_block(sint16 *buffer, int buffer_size, uint32 factor)
 {
-    sint16* dst;
+    sint16 *dst;
     sint16 half;
 
     factor += DWT_FACTOR;
@@ -134,7 +138,7 @@ rfx_quantization_encode_block(sint16* buffer, int buffer_size, uint32 factor)
 
 /******************************************************************************/
 int
-rfx_quantization_encode(sint16* buffer, const char* qtable)
+rfx_quantization_encode(sint16 *buffer, const char *qtable)
 {
     uint32 factor;
 

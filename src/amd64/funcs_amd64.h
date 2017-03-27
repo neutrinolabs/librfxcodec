@@ -33,36 +33,14 @@ cpuid_amd64(int eax_in, int ecx_in, int *eax, int *ebx, int *ecx, int *edx);
 
 int
 rfxcodec_encode_dwt_shift_amd64_sse2(const char *qtable,
-                                     unsigned char *data,
+                                     const unsigned char *data,
                                      short *dwt_buffer1,
                                      short *dwt_buffer);
 int
 rfxcodec_encode_dwt_shift_amd64_sse41(const char *qtable,
-                                      unsigned char *data,
+                                      const unsigned char *data,
                                       short *dwt_buffer1,
                                       short *dwt_buffer);
-int
-rfxcodec_encode_diff_rlgr1_amd64_sse2(short *co,
-                                      void *dst, int dst_bytes);
-int
-rfxcodec_encode_diff_rlgr3_amd64_sse2(short *co,
-                                      void *dst, int dst_bytes);
-
-int
-rfxcodec_decode_rlgr1_diff_amd64_sse2(void *data, int data_bytes,
-                                      short *out_data);
-int
-rfxcodec_decode_rlgr3_diff_amd64_sse2(void *data, int data_bytes,
-                                      short *out_data);
-int
-rfxcodec_decode_shift_idwt_amd64_sse2(char *qtable, short *src, short *dst);
-int
-rfxcodec_decode_yuv2rgb_amd64_sse2(short *ydata, short *udata, short *vdata,
-                                   unsigned int *rgbdata, int stride);
-int
-rfxcodec_decode_yuva2argb_amd64_sse2(short *ydata, short *udata,
-                                     short *vdata, char *adata,
-                                     unsigned int *rgbdata, int stride);
 
 #ifdef __cplusplus
 }

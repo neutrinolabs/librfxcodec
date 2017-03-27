@@ -62,13 +62,13 @@ rfxcodec_encode_destroy(void *handle);
  * 9 - HH1 */
 int
 rfxcodec_encode(void *handle, char *cdata, int *cdata_bytes,
-                char *buf, int width, int height, int stride_bytes,
+                const char *buf, int width, int height, int stride_bytes,
                 const struct rfx_rect *region, int num_region,
                 const struct rfx_tile *tiles, int num_tiles,
                 const char *quants, int num_quants);
 int
 rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
-                   char *buf, int width, int height, int stride_bytes,
+                   const char *buf, int width, int height, int stride_bytes,
                    const struct rfx_rect *region, int num_region,
                    const struct rfx_tile *tiles, int num_tiles,
                    const char *quants, int num_quants, int flags);

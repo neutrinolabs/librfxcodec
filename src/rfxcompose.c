@@ -3,7 +3,7 @@
  * RemoteFX Codec Library
  *
  * Copyright 2011 Vic Lee
- * Copyright 2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2015-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,7 +47,7 @@ static const unsigned char g_rfx_default_quantization_values[] =
 
 /******************************************************************************/
 static int
-rfx_compose_message_sync(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_sync(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 12)
     {
@@ -58,7 +62,7 @@ rfx_compose_message_sync(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_context(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_context(struct rfxencode *enc, STREAM *s)
 {
     uint16 properties;
     int rlgr;
@@ -97,7 +101,7 @@ rfx_compose_message_context(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_codec_versions(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_codec_versions(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 10)
     {
@@ -113,7 +117,7 @@ rfx_compose_message_codec_versions(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_channels(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_channels(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 12)
     {
@@ -130,7 +134,7 @@ rfx_compose_message_channels(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 int
-rfx_compose_message_header(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_header(struct rfxencode *enc, STREAM *s)
 {
     if (rfx_compose_message_sync(enc, s) != 0)
     {
@@ -154,7 +158,7 @@ rfx_compose_message_header(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_frame_begin(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_frame_begin(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 14)
     {
@@ -172,7 +176,7 @@ rfx_compose_message_frame_begin(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 static int
-rfx_compose_message_region(struct rfxencode* enc, STREAM* s,
+rfx_compose_message_region(struct rfxencode *enc, STREAM *s,
                            const struct rfx_rect *regions, int num_regions)
 {
     int size;
@@ -204,7 +208,8 @@ rfx_compose_message_region(struct rfxencode* enc, STREAM* s,
 /******************************************************************************/
 static int
 rfx_compose_message_tile_yuv(struct rfxencode *enc, STREAM *s,
-                             char *tile_data, int tile_width, int tile_height,
+                             const char *tile_data,
+                             int tile_width, int tile_height,
                              int stride_bytes, const char *quantVals,
                              int quantIdxY, int quantIdxCb, int quantIdxCr,
                              int xIdx, int yIdx)
@@ -247,7 +252,8 @@ rfx_compose_message_tile_yuv(struct rfxencode *enc, STREAM *s,
 /******************************************************************************/
 static int
 rfx_compose_message_tile_yuva(struct rfxencode *enc, STREAM *s,
-                              char *tile_data, int tile_width, int tile_height,
+                              const char *tile_data,
+                              int tile_width, int tile_height,
                               int stride_bytes, const char *quantVals,
                               int quantIdxY, int quantIdxCb, int quantIdxCr,
                               int xIdx, int yIdx)
@@ -292,7 +298,8 @@ rfx_compose_message_tile_yuva(struct rfxencode *enc, STREAM *s,
 /******************************************************************************/
 static int
 rfx_compose_message_tile_rgb(struct rfxencode *enc, STREAM *s,
-                             char *tile_data, int tile_width, int tile_height,
+                             const char *tile_data,
+                             int tile_width, int tile_height,
                              int stride_bytes, const char *quantVals,
                              int quantIdxY, int quantIdxCb, int quantIdxCr,
                              int xIdx, int yIdx)
@@ -335,7 +342,8 @@ rfx_compose_message_tile_rgb(struct rfxencode *enc, STREAM *s,
 /******************************************************************************/
 static int
 rfx_compose_message_tile_argb(struct rfxencode *enc, STREAM *s,
-                              char *tile_data, int tile_width, int tile_height,
+                              const char *tile_data,
+                              int tile_width, int tile_height,
                               int stride_bytes, const char *quantVals,
                               int quantIdxY, int quantIdxCb, int quantIdxCr,
                               int xIdx, int yIdx)
@@ -381,8 +389,8 @@ rfx_compose_message_tile_argb(struct rfxencode *enc, STREAM *s,
 
 /******************************************************************************/
 static int
-rfx_compose_message_tileset(struct rfxencode* enc, STREAM* s,
-                            char* buf, int width, int height,
+rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
+                            const char *buf, int width, int height,
                             int stride_bytes,
                             const struct rfx_tile *tiles, int num_tiles,
                             const char *quants, int num_quants,
@@ -403,7 +411,7 @@ rfx_compose_message_tileset(struct rfxencode* enc, STREAM* s,
     int y;
     int cx;
     int cy;
-    char *tile_data;
+    const char *tile_data;
 
     LLOGLN(10, ("rfx_compose_message_tileset:"));
     if (quants == 0)
@@ -548,7 +556,7 @@ rfx_compose_message_tileset(struct rfxencode* enc, STREAM* s,
 
 /******************************************************************************/
 static int
-rfx_compose_message_frame_end(struct rfxencode* enc, STREAM* s)
+rfx_compose_message_frame_end(struct rfxencode *enc, STREAM *s)
 {
     if (stream_get_left(s) < 8)
     {
@@ -563,9 +571,10 @@ rfx_compose_message_frame_end(struct rfxencode* enc, STREAM* s)
 
 /******************************************************************************/
 int
-rfx_compose_message_data(struct rfxencode* enc, STREAM* s,
+rfx_compose_message_data(struct rfxencode *enc, STREAM *s,
                          const struct rfx_rect *regions, int num_regions,
-                         char *buf, int width, int height, int stride_bytes,
+                         const char *buf, int width, int height,
+                         int stride_bytes,
                          const struct rfx_tile *tiles, int num_tiles,
                          const char *quants, int num_quants, int flags)
 {

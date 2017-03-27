@@ -1,0 +1,28 @@
+sudo: false # use new container
+language: c
+
+branches:
+  except: /^(gh-pages|v[0-9]\..*)/
+
+compiler:
+  - clang
+  - gcc
+  - g++
+
+addons:
+  apt:
+    packages:
+      - nasm
+      - gcc-multilib
+      - g++-multilib
+
+env:
+  - CONF_FLAGS="" DISTCHECK=1
+  - CONF_FLAGS="--without-simd"
+  - CONF_FLAGS="--host=i686-linux" CFLAGS=-m32
+
+script:
+  - ./bootstrap
+  - ./configure $CONF_FLAGS
+  - make CFLAGS="$CFLAGS -O2 -Wall -Wwrite-strings -Werror"
+  - test -z "$DISTCHECK" || make distcheck

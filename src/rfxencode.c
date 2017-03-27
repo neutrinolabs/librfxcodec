@@ -1,7 +1,7 @@
 /**
  * RFX codec encoder
  *
- * Copyright 2014-2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2014-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,16 +51,15 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     int cx;
     int dx;
 
-    enc = (struct rfxencode *) malloc(sizeof(struct rfxencode));
+    enc = (struct rfxencode *) calloc(1, sizeof(struct rfxencode));
     if (enc == 0)
     {
         return 1;
     }
-    memset(enc, 0, sizeof(struct rfxencode));
 
-    enc->dwt_buffer = (sint16*)(((size_t)(enc->dwt_buffer_a)) & ~15);
-    enc->dwt_buffer1 = (sint16*)(((size_t)(enc->dwt_buffer1_a)) & ~15);
-    enc->dwt_buffer2 = (sint16*)(((size_t)(enc->dwt_buffer2_a)) & ~15);
+    enc->dwt_buffer = (sint16 *) (((size_t) (enc->dwt_buffer_a)) & ~15);
+    enc->dwt_buffer1 = (sint16 *) (((size_t) (enc->dwt_buffer1_a)) & ~15);
+    enc->dwt_buffer2 = (sint16 *) (((size_t) (enc->dwt_buffer2_a)) & ~15);
 
 #if defined(RFX_USE_ACCEL_X86)
     cpuid_x86(1, 0, &ax, &bx, &cx, &dx);
@@ -272,14 +275,14 @@ rfxcodec_encode_create(int width, int height, int format, int flags)
     error = rfxcodec_encode_create_ex(width, height, format, flags, &handle);
     if (error == 0)
     {
-        return handle; 
+        return handle;
     }
     return 0;
 }
 
 /******************************************************************************/
 int
-rfxcodec_encode_destroy(void * handle)
+rfxcodec_encode_destroy(void *handle)
 {
     struct rfxencode *enc;
 
@@ -295,7 +298,7 @@ rfxcodec_encode_destroy(void * handle)
 /******************************************************************************/
 int
 rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
-                   char *buf, int width, int height, int stride_bytes,
+                   const char *buf, int width, int height, int stride_bytes,
                    const struct rfx_rect *regions, int num_regions,
                    const struct rfx_tile *tiles, int num_tiles,
                    const char *quants, int num_quants, int flags)
@@ -331,7 +334,7 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
 /******************************************************************************/
 int
 rfxcodec_encode(void *handle, char *cdata, int *cdata_bytes,
-                char *buf, int width, int height, int stride_bytes,
+                const char *buf, int width, int height, int stride_bytes,
                 const struct rfx_rect *regions, int num_regions,
                 const struct rfx_tile *tiles, int num_tiles,
                 const char *quants, int num_quants)
