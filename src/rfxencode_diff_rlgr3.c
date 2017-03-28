@@ -277,6 +277,7 @@ rfx_encode_diff_rlgr3(sint16 *coef, uint8 *cdata, int cdata_size)
     if (bit_count > 0)
     {
         bits <<= 8 - bit_count;
+        bits |= ((1 << (8 - bit_count)) - 1) & *cdata;
         *cdata = bits;
         cdata++;
         bit_count = 0;
