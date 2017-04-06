@@ -28,7 +28,7 @@
 
 #include "rfxcommon.h"
 #include "rfxencode.h"
-#include "rfxcompose.h"
+#include "rfxencode_compose.h"
 #include "rfxconstants.h"
 #include "rfxencode_tile.h"
 

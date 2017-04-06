@@ -20,7 +20,7 @@ endif
 noinst_HEADERS = \
   rfx_bitstream.h \
   rfxcommon.h \
-  rfxcompose.h \
+  rfxencode_compose.h \
   rfxconstants.h \
   rfxencode_alpha.h \
   rfxencode_differential.h \
@@ -36,7 +36,7 @@ noinst_HEADERS = \
 lib_LTLIBRARIES = librfxencode.la
 
 librfxencode_la_SOURCES = $(noinst_HEADERS) rfxencode.c \
-  rfxcompose.c rfxencode_tile.c rfxencode_dwt.c \
+  rfxencode_compose.c rfxencode_tile.c rfxencode_dwt.c \
   rfxencode_quantization.c rfxencode_differential.c \
   rfxencode_rlgr1.c rfxencode_rlgr3.c rfxencode_alpha.c \
   rfxencode_diff_rlgr1.c rfxencode_diff_rlgr3.c
