@@ -1,3 +1,5 @@
+NAFLAGS += -DASM_ARCH_I386
+
 X86_ASM = \
   cpuid_x86.asm \
   rfxcodec_encode_dwt_shift_x86_sse2.asm \
