@@ -31,6 +31,13 @@
 #include "rfxencode_compose.h"
 #include "rfxconstants.h"
 #include "rfxencode_tile.h"
+#include "rfxencode_rlgr1.h"
+#include "rfxencode_rlgr3.h"
+#include "rfxencode_differential.h"
+#include "rfxencode_quantization.h"
+#include "rfxencode_dwt.h"
+#include "rfxencode_diff_rlgr1.h"
+#include "rfxencode_diff_rlgr3.h"
 
 #ifdef RFX_USE_ACCEL_X86
 #include "x86/funcs_x86.h"
@@ -344,3 +351,25 @@ rfxcodec_encode(void *handle, char *cdata, int *cdata_bytes,
                               num_tiles, quants, num_quants, 0);
 }
 
+/******************************************************************************/
+int
+rfxcodec_encode_get_internals(struct rfxcodec_encode_internals *internals)
+{
+    memset(internals, 0, sizeof(struct rfxcodec_encode_internals));
+    internals->rfxencode_rlgr1 = rfx_rlgr1_encode;
+    internals->rfxencode_rlgr3 = rfx_rlgr3_encode;
+    internals->rfxencode_differential = rfx_differential_encode;
+    internals->rfxencode_quantization = rfx_quantization_encode;
+    internals->rfxencode_dwt_2d = rfx_dwt_2d_encode;
+    internals->rfxencode_diff_rlgr1 = rfx_encode_diff_rlgr1;
+    internals->rfxencode_diff_rlgr3 = rfx_encode_diff_rlgr3;
+#if defined(RFX_USE_ACCEL_X86)
+    internals->rfxencode_dwt_shift_x86_sse2 = rfxcodec_encode_dwt_shift_x86_sse2;
+    internals->rfxencode_dwt_shift_x86_sse41 = rfxcodec_encode_dwt_shift_x86_sse41;
+#endif
+#if defined(RFX_USE_ACCEL_AMD64)
+    internals->rfxencode_dwt_shift_amd64_sse2 = rfxcodec_encode_dwt_shift_amd64_sse2;
+    internals->rfxencode_dwt_shift_amd64_sse41 = rfxcodec_encode_dwt_shift_amd64_sse41;
+#endif
+    return 0;
+}

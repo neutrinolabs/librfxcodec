@@ -73,4 +73,38 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
                    const struct rfx_tile *tiles, int num_tiles,
                    const char *quants, int num_quants, int flags);
 
+/* use simple types here, no sint16_t, uint8_t, ... */
+typedef int (*rfxencode_rlgr1_proc)(const short *data, unsigned char *buffer, int buffer_size);
+typedef int (*rfxencode_rlgr3_proc)(const short *data, unsigned char *buffer, int buffer_size);
+typedef int (*rfxencode_differential_proc)(short *buffer, int buffer_size);
+typedef int (*rfxencode_quantization_proc)(short *buffer, const char *quantization_values);
+typedef int (*rfxencode_dwt_2d_proc)(const unsigned char *in_buffer, short *buffer, short *dwt_buffer);
+
+typedef int (*rfxencode_diff_rlgr1_proc)(short *coef, unsigned char *cdata, int cdata_size);
+typedef int (*rfxencode_diff_rlgr3_proc)(short *coef, unsigned char *cdata, int cdata_size);
+
+typedef int (*rfxencode_dwt_shift_x86_sse2_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);
+typedef int (*rfxencode_dwt_shift_x86_sse41_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);
+
+typedef int (*rfxencode_dwt_shift_amd64_sse2_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);
+typedef int (*rfxencode_dwt_shift_amd64_sse41_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);
+
+struct rfxcodec_encode_internals
+{
+    rfxencode_rlgr1_proc rfxencode_rlgr1;
+    rfxencode_rlgr3_proc rfxencode_rlgr3;
+    rfxencode_differential_proc rfxencode_differential;
+    rfxencode_quantization_proc rfxencode_quantization;
+    rfxencode_dwt_2d_proc rfxencode_dwt_2d;
+    rfxencode_diff_rlgr1_proc rfxencode_diff_rlgr1;
+    rfxencode_diff_rlgr3_proc rfxencode_diff_rlgr3;
+    rfxencode_dwt_shift_x86_sse2_proc rfxencode_dwt_shift_x86_sse2;
+    rfxencode_dwt_shift_x86_sse41_proc rfxencode_dwt_shift_x86_sse41;
+    rfxencode_dwt_shift_amd64_sse2_proc rfxencode_dwt_shift_amd64_sse2;
+    rfxencode_dwt_shift_amd64_sse41_proc rfxencode_dwt_shift_amd64_sse41;
+};
+
+int
+rfxcodec_encode_get_internals(struct rfxcodec_encode_internals *internals);
+
 #endif
