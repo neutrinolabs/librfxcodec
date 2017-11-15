@@ -38,6 +38,7 @@
 #include "rfxencode_dwt.h"
 #include "rfxencode_diff_rlgr1.h"
 #include "rfxencode_diff_rlgr3.h"
+#include "rfxencode_rgb_to_yuv.h"
 
 #ifdef RFX_USE_ACCEL_X86
 #include "x86/funcs_x86.h"
@@ -59,7 +60,7 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     int dx;
 
     enc = (struct rfxencode *) calloc(1, sizeof(struct rfxencode));
-    if (enc == 0)
+    if (enc == NULL)
     {
         return 1;
     }
@@ -153,6 +154,8 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
             return 2;
     }
     enc->format = format;
+    enc->rfx_encode_rgb_to_yuv = rfx_encode_rgb_to_yuv;
+    enc->rfx_encode_argb_to_yuva = rfx_encode_argb_to_yuva;
     /* assign encoding functions */
     if (flags & RFX_FLAGS_NOACCEL)
     {
@@ -294,7 +297,7 @@ rfxcodec_encode_destroy(void *handle)
     struct rfxencode *enc;
 
     enc = (struct rfxencode *) handle;
-    if (enc == 0)
+    if (enc == NULL)
     {
         return 0;
     }

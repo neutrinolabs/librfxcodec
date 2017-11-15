@@ -21,6 +21,14 @@
 
 struct rfxencode;
 
+typedef int (*rfx_encode_rgb_to_yuv_proc)(struct rfxencode *enc,
+                                          const char *rgb_data,
+                                          int width, int height,
+                                          int stride_bytes);
+typedef int (*rfx_encode_argb_to_yuva_proc)(struct rfxencode *enc,
+                                            const char *argb_data,
+                                            int width, int height,
+                                       int stride_bytes);
 typedef int (*rfx_encode_proc)(struct rfxencode *enc, const char *qtable,
                                const uint8 *data,
                                uint8 *buffer, int buffer_size, int *size);
@@ -51,6 +59,8 @@ struct rfxencode
     sint16 *dwt_buffer1;
     sint16 *dwt_buffer2;
     rfx_encode_proc rfx_encode;
+    rfx_encode_rgb_to_yuv_proc rfx_encode_rgb_to_yuv;
+    rfx_encode_argb_to_yuva_proc rfx_encode_argb_to_yuva;
 
     int got_sse2;
     int got_sse3;
