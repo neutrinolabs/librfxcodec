@@ -84,9 +84,9 @@ rfx_encode_format_rgb(const char *rgb_data, int width, int height,
                 }
                 while (x < 64)
                 {
-                    *lr_buf++ = r;
+                    *lb_buf++ = b;
                     *lg_buf++ = g;
-                    *lb_buf++ = r;
+                    *lr_buf++ = r;
                     x++;
                 }
             }
@@ -155,9 +155,9 @@ rfx_encode_format_rgb(const char *rgb_data, int width, int height,
                 }
                 while (x < 64)
                 {
-                    *lr_buf++ = r;
-                    *lg_buf++ = g;
                     *lb_buf++ = b;
+                    *lg_buf++ = g;
+                    *lr_buf++ = r;
                     x++;
                 }
             }
@@ -257,10 +257,10 @@ rfx_encode_format_argb(const char *argb_data, int width, int height,
                 }
                 while (x < 64)
                 {
-                    *la_buf++ = a;
-                    *lr_buf++ = r;
+                    *lb_buf++ = b;
                     *lg_buf++ = g;
-                    *lb_buf++ = r;
+                    *lr_buf++ = r;
+                    *la_buf++ = a;
                     x++;
                 }
             }
@@ -298,10 +298,10 @@ rfx_encode_format_argb(const char *argb_data, int width, int height,
                 }
                 while (x < 64)
                 {
-                    *la_buf++ = a;
                     *lr_buf++ = r;
                     *lg_buf++ = g;
                     *lb_buf++ = b;
+                    *la_buf++ = a;
                     x++;
                 }
             }
@@ -336,9 +336,9 @@ rfx_encode_format_argb(const char *argb_data, int width, int height,
                 }
                 while (x < 64)
                 {
-                    *lr_buf++ = r;
-                    *lg_buf++ = g;
                     *lb_buf++ = b;
+                    *lg_buf++ = g;
+                    *lr_buf++ = r;
                     x++;
                 }
             }
