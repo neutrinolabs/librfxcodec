@@ -165,9 +165,13 @@ rfx_rlgr1_encode(const sint16 *data, uint8 *buffer, int buffer_size)
             /* collect the run of zeros in the input stream */
             numZeros = 0;
             GetNextInput(input);
-            while (input == 0 && data_size > 0)
+            while (input == 0)
             {
                 numZeros++;
+                if (data_size < 1)
+                {
+                    break;
+                }
                 GetNextInput(input);
             }
 
@@ -187,15 +191,17 @@ rfx_rlgr1_encode(const sint16 *data, uint8 *buffer, int buffer_size)
             /* output the remaining run length using k bits */
             OutputBits(k, numZeros);
 
-            /* note: when we reach here and the last byte being encoded is 0, we still
-               need to output the last two bits, otherwise mstsc will crash */
+            if (input == 0)
+            {
+                continue;
+            }
 
             /* encode the nonzero value using GR coding */
             mag = (input < 0 ? -input : input); /* absolute value of input coefficient */
             sign = (input < 0 ? 1 : 0);  /* sign of input coefficient */
 
             OutputBit(1, sign); /* output the sign bit */
-            lmag = mag ? mag - 1 : 0;
+            lmag = mag - 1;
             CodeGR(krp, lmag); /* output GR code for (mag - 1) */
 
             UpdateParam(kp, -DN_GR, k);

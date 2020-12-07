@@ -31,6 +31,7 @@
 #define RFX_FLAGS_OPT1    (1 << 3)
 #define RFX_FLAGS_OPT2    (1 << 4)
 #define RFX_FLAGS_NOACCEL (1 << 6)
+#define RFX_FLAGS_PRO1    (1 << 7)
 
 #define RFX_FLAGS_RLGR3 0 /* default */
 #define RFX_FLAGS_RLGR1 1

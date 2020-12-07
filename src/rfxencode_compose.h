@@ -31,4 +31,14 @@ rfx_compose_message_data(struct rfxencode *enc, STREAM *s,
                          const struct rfx_tile *tiles, int num_tiles,
                          const char *quants, int num_quants, int flags);
 
+int
+rfx_pro_compose_message_header(struct rfxencode *enc, STREAM *s);
+int
+rfx_pro_compose_message_data(struct rfxencode *enc, STREAM *s,
+                             const struct rfx_rect *regions, int num_regions,
+                             const char *buf, int width, int height,
+                             int stride_bytes,
+                             const struct rfx_tile *tiles, int num_tiles,
+                             const char *quants, int num_quants, int flags);
+
 #endif

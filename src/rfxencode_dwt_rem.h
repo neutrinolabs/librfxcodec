@@ -1,7 +1,7 @@
 /**
  * RFX codec encoder
  *
- * Copyright 2014-2017 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2020 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-#ifndef __RFXENCODE_RFX_DWT_H
-#define __RFXENCODE_RFX_DWT_H
+#ifndef __RFXENCODE_RFX_REM_DWT_H
+#define __RFXENCODE_RFX_REM_DWT_H
 
 int
-rfx_dwt_2d_encode(const uint8 *in_buffer, sint16 *out_buffer,
-                  sint16 *tmp_buffer);
+rfx_rem_dwt_encode(const uint8 *in_buffer, sint16 *out_buffer,
+                   sint16 *tmp_buffer);
 
 #endif

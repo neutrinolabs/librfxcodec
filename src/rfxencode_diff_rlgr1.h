@@ -23,7 +23,8 @@
 #include "rfxcommon.h"
 
 int
-rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size);
+rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size,
+                      int diff_bytes);
 
 #endif /* __RFX_DIFF_RLGR1_H */
 
