@@ -98,6 +98,19 @@ rfx_encode_component_rlgr3(struct rfxencode *enc, const char *qtable,
 }
 
 /******************************************************************************/
+static int
+check_and_rfx_encode(struct rfxencode *enc, const char *qtable,
+                     const uint8 *data,
+                     uint8 *buffer, int buffer_size, int *size)
+{
+    if (buffer_size < 4096 * 2)
+    {
+        return 1;
+    }
+    return enc->rfx_encode(enc, qtable, data, buffer, buffer_size, size);
+}
+
+/******************************************************************************/
 int
 rfx_encode_rgb(struct rfxencode *enc, const char *rgb_data,
                int width, int height, int stride_bytes,
@@ -118,28 +131,28 @@ rfx_encode_rgb(struct rfxencode *enc, const char *rgb_data,
     y_r_buffer = enc->y_r_buffer;
     u_g_buffer = enc->u_g_buffer;
     v_b_buffer = enc->v_b_buffer;
-    if (enc->rfx_encode(enc, y_quants, y_r_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        y_size) != 0)
+    if (check_and_rfx_encode(enc, y_quants, y_r_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             y_size) != 0)
     {
         return 1;
     }
     LLOGLN(10, ("rfx_encode_rgb: y_size %d", *y_size));
     stream_seek(data_out, *y_size);
-    if (enc->rfx_encode(enc, u_quants, u_g_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        u_size) != 0)
+    if (check_and_rfx_encode(enc, u_quants, u_g_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             u_size) != 0)
     {
         return 1;
     }
     LLOGLN(10, ("rfx_encode_rgb: u_size %d", *u_size));
     stream_seek(data_out, *u_size);
-    if (enc->rfx_encode(enc, v_quants, v_b_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        v_size) != 0)
+    if (check_and_rfx_encode(enc, v_quants, v_b_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             v_size) != 0)
     {
         return 1;
     }
@@ -172,28 +185,28 @@ rfx_encode_argb(struct rfxencode *enc, const char *argb_data,
     y_r_buffer = enc->y_r_buffer;
     u_g_buffer = enc->u_g_buffer;
     v_b_buffer = enc->v_b_buffer;
-    if (enc->rfx_encode(enc, y_quants, y_r_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        y_size) != 0)
+    if (check_and_rfx_encode(enc, y_quants, y_r_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             y_size) != 0)
     {
         return 1;
     }
     LLOGLN(10, ("rfx_encode_rgb: y_size %d", *y_size));
     stream_seek(data_out, *y_size);
-    if (enc->rfx_encode(enc, u_quants, u_g_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        u_size) != 0)
+    if (check_and_rfx_encode(enc, u_quants, u_g_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             u_size) != 0)
     {
         return 1;
     }
     LLOGLN(10, ("rfx_encode_rgb: u_size %d", *u_size));
     stream_seek(data_out, *u_size);
-    if (enc->rfx_encode(enc, v_quants, v_b_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        v_size) != 0)
+    if (check_and_rfx_encode(enc, v_quants, v_b_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             v_size) != 0)
     {
         return 1;
     }
@@ -218,26 +231,26 @@ rfx_encode_yuv(struct rfxencode *enc, const char *yuv_data,
     y_buffer = (const uint8 *) yuv_data;
     u_buffer = (const uint8 *) (yuv_data + RFX_YUV_BTES);
     v_buffer = (const uint8 *) (yuv_data + RFX_YUV_BTES * 2);
-    if (enc->rfx_encode(enc, y_quants, y_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        y_size) != 0)
+    if (check_and_rfx_encode(enc, y_quants, y_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             y_size) != 0)
     {
         return 1;
     }
     stream_seek(data_out, *y_size);
-    if (enc->rfx_encode(enc, u_quants, u_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        u_size) != 0)
+    if (check_and_rfx_encode(enc, u_quants, u_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             u_size) != 0)
     {
         return 1;
     }
     stream_seek(data_out, *u_size);
-    if (enc->rfx_encode(enc, v_quants, v_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        v_size) != 0)
+    if (check_and_rfx_encode(enc, v_quants, v_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             v_size) != 0)
     {
         return 1;
     }
@@ -263,26 +276,26 @@ rfx_encode_yuva(struct rfxencode *enc, const char *yuva_data,
     u_buffer = (const uint8 *) (yuva_data + RFX_YUV_BTES);
     v_buffer = (const uint8 *) (yuva_data + RFX_YUV_BTES * 2);
     a_buffer = (const uint8 *) (yuva_data + RFX_YUV_BTES * 3);
-    if (enc->rfx_encode(enc, y_quants, y_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        y_size) != 0)
+    if (check_and_rfx_encode(enc, y_quants, y_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             y_size) != 0)
     {
         return 1;
     }
     stream_seek(data_out, *y_size);
-    if (enc->rfx_encode(enc, u_quants, u_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        u_size) != 0)
+    if (check_and_rfx_encode(enc, u_quants, u_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             u_size) != 0)
     {
         return 1;
     }
     stream_seek(data_out, *u_size);
-    if (enc->rfx_encode(enc, v_quants, v_buffer,
-                        stream_get_tail(data_out),
-                        stream_get_left(data_out),
-                        v_size) != 0)
+    if (check_and_rfx_encode(enc, v_quants, v_buffer,
+                             stream_get_tail(data_out),
+                             stream_get_left(data_out),
+                             v_size) != 0)
     {
         return 1;
     }

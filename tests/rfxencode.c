@@ -248,7 +248,7 @@ int process(void)
             error = rfxcodec_encode(han, out_data, &out_bytes, bmp_data,
                                     width, height, width * 4,
                                     &region, 1, tiles, num_tiles, NULL, 0);
-            if (error != 0)
+            if (error < num_tiles)
             {
                 break;
             }

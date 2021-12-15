@@ -314,6 +314,7 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
                    const char *quants, int num_quants, int flags)
 {
     struct rfxencode *enc;
+    int tiles_written;
     STREAM s;
 
     enc = (struct rfxencode *) handle;
@@ -327,18 +328,15 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
     {
         if (rfx_compose_message_header(enc, &s) != 0)
         {
-            return 1;
+            return -1;
         }
     }
-    if (rfx_compose_message_data(enc, &s, regions, num_regions,
-                                 buf, width, height, stride_bytes,
-                                 tiles, num_tiles, quants, num_quants,
-                                 flags) != 0)
-    {
-        return 1;
-    }
+    tiles_written = rfx_compose_message_data(enc, &s, regions, num_regions,
+                                            buf, width, height, stride_bytes,
+                                            tiles, num_tiles,
+                                            quants, num_quants, flags);
     *cdata_bytes = (int) (s.p - s.data);
-    return 0;
+    return tiles_written;
 }
 
 /******************************************************************************/

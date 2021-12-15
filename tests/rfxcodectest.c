@@ -125,7 +125,7 @@ speed_random(int count, const char *quants)
         error = rfxcodec_encode_ex(han, cdata, &cdata_bytes, buf, 64, 64, 64 * 4,
                                    regions, num_regions, tiles, num_tiles,
                                    quants, num_quants, flags);
-        if (error != 0)
+        if (error < num_tiles)
         {
             break;
         }
@@ -295,7 +295,7 @@ encode_file(char *data, int width, int height, char *cdata, int *cdata_bytes,
     error = rfxcodec_encode_ex(han, cdata, cdata_bytes, data, width, height, width * 4,
                                regions, num_regions, tiles, num_tiles,
                                quants, num_quants, 0);
-    if (error != 0)
+    if (error < num_tiles)
     {
         printf("encode_file: rfxcodec_encode failed error %d\n", error);
         return 1;

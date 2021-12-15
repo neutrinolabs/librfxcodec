@@ -399,6 +399,8 @@ rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
     int size;
     int start_pos;
     int end_pos;
+    int tiles_end_checkpoint;
+    int tiles_written;
     int index;
     int numQuants;
     const char *quantVals;
@@ -449,6 +451,7 @@ rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
     memcpy(s->p, quantVals, numQuants * 5);
     s->p += numQuants * 5;
     end_pos = stream_get_pos(s);
+    tiles_written = 0;
     if (enc->format == RFX_FORMAT_YUV)
     {
         if (flags & RFX_FLAGS_ALPHAV1)
@@ -469,8 +472,10 @@ rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
                                                   quantIdxY, quantIdxCb, quantIdxCr,
                                                   x / 64, y / 64) != 0)
                 {
-                    return 1;
+                    break;
                 }
+                tiles_end_checkpoint = stream_get_pos(s);
+                tiles_written += 1;
             }
         }
         else
@@ -491,8 +496,10 @@ rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
                                                  quantIdxY, quantIdxCb, quantIdxCr,
                                                  x / 64, y / 64) != 0)
                 {
-                    return 1;
+                    break;
                 }
+                tiles_end_checkpoint = stream_get_pos(s);
+                tiles_written += 1;
             }
         }
     }
@@ -516,8 +523,10 @@ rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
                                                   quantIdxY, quantIdxCb, quantIdxCr,
                                                   x / 64, y / 64) != 0)
                 {
-                    return 1;
+                    break;
                 }
+                tiles_end_checkpoint = stream_get_pos(s);
+                tiles_written += 1;
             }
         }
         else
@@ -538,20 +547,24 @@ rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
                                                  quantIdxY, quantIdxCb, quantIdxCr,
                                                  x / 64, y / 64) != 0)
                 {
-                    return 1;
+                    break;
                 }
+                tiles_end_checkpoint = stream_get_pos(s);
+                tiles_written += 1;
             }
         }
     }
-    tilesDataSize = stream_get_pos(s) - end_pos;
+    tilesDataSize = tiles_end_checkpoint - end_pos;
     size += tilesDataSize;
-    end_pos = stream_get_pos(s);
+    end_pos = tiles_end_checkpoint;
     stream_set_pos(s, start_pos + 2);
     stream_write_uint32(s, size); /* CodecChannelT.blockLen */
+    stream_set_pos(s, start_pos + 16);
+    stream_write_uint16(s, tiles_written);
     stream_set_pos(s, start_pos + 18);
     stream_write_uint32(s, tilesDataSize);
     stream_set_pos(s, end_pos);
-    return 0;
+    return tiles_written;
 }
 
 /******************************************************************************/
@@ -578,23 +591,20 @@ rfx_compose_message_data(struct rfxencode *enc, STREAM *s,
                          const struct rfx_tile *tiles, int num_tiles,
                          const char *quants, int num_quants, int flags)
 {
+    int tiles_written;
     if (rfx_compose_message_frame_begin(enc, s) != 0)
     {
-        return 1;
+        return -1;
     }
     if (rfx_compose_message_region(enc, s, regions, num_regions) != 0)
     {
-        return 1;
+        return -1;
     }
-    if (rfx_compose_message_tileset(enc, s, buf, width, height, stride_bytes,
-                                    tiles, num_tiles, quants, num_quants,
-                                    flags) != 0)
-    {
-        return 1;
-    }
+    tiles_written = rfx_compose_message_tileset(enc, s, buf, width, height, stride_bytes,
+                   tiles, num_tiles, quants, num_quants, flags);
     if (rfx_compose_message_frame_end(enc, s) != 0)
     {
-        return 1;
+        return -1;
     }
-    return 0;
+    return tiles_written;
 }
