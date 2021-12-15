@@ -452,6 +452,8 @@ rfx_compose_message_tileset(struct rfxencode *enc, STREAM *s,
     s->p += numQuants * 5;
     end_pos = stream_get_pos(s);
     tiles_written = 0;
+    tiles_end_checkpoint = stream_get_pos(s);
+
     if (enc->format == RFX_FORMAT_YUV)
     {
         if (flags & RFX_FLAGS_ALPHAV1)
