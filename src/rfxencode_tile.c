@@ -51,6 +51,23 @@
 #define LLOGLN(_level, _args) \
     do { if (_level < LLOG_LEVEL) { printf _args ; printf("\n"); } } while (0)
 
+/**
+ * In order not to overflow the output buffer, we need to have an
+ * upper limit on the size of a tile which could possibly be written to
+ * the buffer.
+ *
+ * The tile data structure (TS_RFX_TILE) is defined in [MS-RDPRFX]
+ * 2.2.2.3.4.1
+ *
+ * We make the conservative assumption that the RLGR1/RLGL3 algorithm
+ * worst case results in a doubling of the YCbCr data for each pixel.
+ * This is likely to be far higher than necessary.
+ */
+#define RLGR_WORST_CASE_SIZE_FACTOR 2
+#define TILE_SIZE_UPPER_LIMIT (6 + 1 + 1 + 1 + 2 + 2 + 2 + 2 + 2 + \
+                                (64 * 64) * 3 * RLGR_WORST_CASE_SIZE_FACTOR)
+
+
 /******************************************************************************/
 int
 rfx_encode_component_rlgr1(struct rfxencode *enc, const char *qtable,
@@ -103,7 +120,7 @@ check_and_rfx_encode(struct rfxencode *enc, const char *qtable,
                      const uint8 *data,
                      uint8 *buffer, int buffer_size, int *size)
 {
-    if (buffer_size < 4096 * 2)
+    if (buffer_size < TILE_SIZE_UPPER_LIMIT)
     {
         return 1;
     }
