@@ -1325,8 +1325,8 @@ set_quants_lo:
     movdqa xmm10, [rdx]
     ret
 
-;The first six integer or pointer arguments are passed in registers
-;RDI, RSI, RDX, RCX, R8, and R9
+; Per System V AMD64 ABI, the first six integer or pointer arguments are
+; passed in registers RDI, RSI, RDX, RCX, R8, and R9
 
 ;int
 ;rfxcodec_encode_dwt_shift_amd64_sse2(const char *qtable,
@@ -1336,12 +1336,19 @@ set_quants_lo:
 
 ;******************************************************************************
 PROC rfxcodec_encode_dwt_shift_amd64_sse2
+    ; prologue. this will make the function appear to the debugger as
+    ; having a stack frame, so that a backtrace can be obtained
+%ifdef DEBUG
+    push rbp
+    mov rbp, rsp
+%endif
+
     ; save registers
     push rbx
-    push rdx
-    push rcx
-    push rsi
-    push rdi
+    push rdx  ; rsp+24: out_buffer
+    push rcx  ; rsp+16: work_buffer
+    push rsi  ; rsp+ 8: in_buffer
+    push rdi  ; rsp+ 0: qtable
     pxor xmm0, xmm0
 
     ; verical DWT to work buffer, level 1
@@ -1483,5 +1490,12 @@ PROC rfxcodec_encode_dwt_shift_amd64_sse2
     pop rcx
     pop rdx
     pop rbx
+
+    ; epilogue
+%ifdef DEBUG
+    mov rsp, rbp
+    pop rbp
+%endif
+
     ret
 END_OF_FILE
