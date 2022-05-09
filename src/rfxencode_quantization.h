@@ -24,5 +24,7 @@
 
 int
 rfx_quantization_encode(sint16 *buffer, const char *quantization_values);
+int
+rfx_rem_quantization_encode(sint16 *buffer, const char *quantization_values);
 
 #endif /* __RFX_QUANTIZATION_H */

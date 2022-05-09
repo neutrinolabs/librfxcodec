@@ -80,8 +80,8 @@ typedef int (*rfxencode_differential_proc)(short *buffer, int buffer_size);
 typedef int (*rfxencode_quantization_proc)(short *buffer, const char *quantization_values);
 typedef int (*rfxencode_dwt_2d_proc)(const unsigned char *in_buffer, short *buffer, short *dwt_buffer);
 
-typedef int (*rfxencode_diff_rlgr1_proc)(short *coef, unsigned char *cdata, int cdata_size);
-typedef int (*rfxencode_diff_rlgr3_proc)(short *coef, unsigned char *cdata, int cdata_size);
+typedef int (*rfxencode_diff_rlgr1_proc)(short *coef, unsigned char *cdata, int cdata_size, int diff_bytes);
+typedef int (*rfxencode_diff_rlgr3_proc)(short *coef, unsigned char *cdata, int cdata_size, int diff_bytes);
 
 typedef int (*rfxencode_dwt_shift_x86_sse2_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);
 typedef int (*rfxencode_dwt_shift_x86_sse41_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);

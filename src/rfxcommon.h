@@ -84,6 +84,9 @@ typedef struct _STREAM STREAM;
 } while (0)
 #endif
 
+#define stream_read(_s, _b, _n) do { memcpy(_b, (_s)->p, _n); (_s)->p += _n; } while (0)
+#define stream_write(_s, _b, _n) do { memcpy((_s)->p, _b, _n); (_s)->p += _n; } while (0)
+
 #define stream_seek(_s, _n) (_s)->p += _n
 #define stream_seek_uint8(_s) (_s)->p += 1
 #define stream_seek_uint16(_s) (_s)->p += 2

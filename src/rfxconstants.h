@@ -44,6 +44,22 @@ enum _RLGR_MODE
 #define CBT_TILESET             0xCAC2
 #define CBT_TILE                0xCAC3
 
+/* progressive blockType */
+#define PRO_WBT_SYNC                        0xCCC0
+#define PRO_WBT_FRAME_BEGIN                 0xCCC1
+#define PRO_WBT_FRAME_END                   0xCCC2
+#define PRO_WBT_CONTEXT                     0xCCC3
+#define PRO_WBT_REGION                      0xCCC4
+#define PRO_WBT_TILE_SIMPLE                 0xCCC5
+#define PRO_WBT_TILE_PROGRESSIVE_FIRST      0xCCC6
+#define PRO_WBT_TILE_PROGRESSIVE_UPGRADE    0xCCC7
+
+#define RFX_SUBBAND_DIFFING     0x01
+
+#define RFX_DWT_REDUCE_EXTRAPOLATE      0x01
+
+#define RFX_TILE_DIFFERENCE     0x01
+
 /* tileSize */
 #define CT_TILE_64x64           0x0040
 

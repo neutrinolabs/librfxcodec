@@ -27,12 +27,14 @@
 #include <string.h>
 
 #include "rfxcommon.h"
+#include "rfxencode_dwt.h"
 
 /******************************************************************************/
 static int
-rfx_dwt_2d_encode_horz(sint16 *buffer, sint16 *dwt, int subband_width)
+rfx_dwt_2d_encode_horz(const sint16 *in_buffer, sint16 *out_buffer,
+                       int subband_width)
 {
-    sint16 *l_src, *h_src;
+    const sint16 *l_src, *h_src;
     sint16 *hl, *lh, *hh, *ll;
     int x, y;
     int n;
@@ -42,13 +44,13 @@ rfx_dwt_2d_encode_horz(sint16 *buffer, sint16 *dwt, int subband_width)
     /* The lower part L generates LL(3) and HL(0). */
     /* The higher part H generates LH(1) and HH(2). */
 
-    ll = buffer + subband_width * subband_width * 3;
-    hl = buffer;
-    l_src = dwt;
+    ll = out_buffer + subband_width * subband_width * 3;
+    hl = out_buffer;
+    l_src = in_buffer;
 
-    lh = buffer + subband_width * subband_width;
-    hh = buffer + subband_width * subband_width * 2;
-    h_src = dwt + subband_width * subband_width * 2;
+    lh = out_buffer + subband_width * subband_width;
+    hh = out_buffer + subband_width * subband_width * 2;
+    h_src = in_buffer + subband_width * subband_width * 2;
 
     for (y = 0; y < subband_width; y++)
     {
@@ -102,7 +104,8 @@ rfx_dwt_2d_encode_horz(sint16 *buffer, sint16 *dwt, int subband_width)
 
 /******************************************************************************/
 static int
-rfx_dwt_2d_encode_block(sint16 *buffer, sint16 *dwt, int subband_width)
+rfx_dwt_2d_encode_block(sint16 *in_out_buffer, sint16 *tmp_buffer,
+                        int subband_width)
 {
     sint16 *src, *l, *h;
     int total_width;
@@ -112,14 +115,14 @@ rfx_dwt_2d_encode_block(sint16 *buffer, sint16 *dwt, int subband_width)
     total_width = subband_width << 1;
 
     /* DWT in vertical direction, results in 2 sub-bands in L, H order in
-     * tmp buffer dwt. */
+     * tmp buffer. */
     for (x = 0; x < total_width; x++)
     {
 
         /* pre */
-        l = dwt + x;
+        l = tmp_buffer + x;
         h = l + subband_width * total_width;
-        src = buffer + x;
+        src = in_out_buffer + x;
         *h = (src[total_width] - ((src[0] + src[2 * total_width]) >> 1)) >> 1;
         *l = src[0] + (*h);
 
@@ -127,9 +130,9 @@ rfx_dwt_2d_encode_block(sint16 *buffer, sint16 *dwt, int subband_width)
         for (n = 1; n < subband_width - 1; n++)
         {
             y = n << 1;
-            l = dwt + n * total_width + x;
+            l = tmp_buffer + n * total_width + x;
             h = l + subband_width * total_width;
-            src = buffer + y * total_width + x;
+            src = in_out_buffer + y * total_width + x;
             *h = (src[total_width] - ((src[0] + src[2 * total_width]) >> 1)) >> 1;
             *l = src[0] + ((*(h - total_width) + *h) >> 1);
         }
@@ -137,21 +140,22 @@ rfx_dwt_2d_encode_block(sint16 *buffer, sint16 *dwt, int subband_width)
         /* post */
         n = subband_width - 1;
         y = n << 1;
-        l = dwt + n * total_width + x;
+        l = tmp_buffer + n * total_width + x;
         h = l + subband_width * total_width;
-        src = buffer + y * total_width + x;
+        src = in_out_buffer + y * total_width + x;
         *h = (src[total_width] - ((src[0] + src[0]) >> 1)) >> 1;
         *l = src[0] + ((*(h - total_width) + *h) >> 1);
 
     }
 
-    return rfx_dwt_2d_encode_horz(buffer, dwt, subband_width);
+    return rfx_dwt_2d_encode_horz(tmp_buffer, in_out_buffer, subband_width);
 }
 
 /******************************************************************************/
 static int
 rfx_dwt_2d_encode_block8(const uint8 *in_buffer,
-                         sint16 *buffer, sint16 *dwt, int subband_width)
+                         sint16 *out_buffer, sint16 *tmp_buffer,
+                         int subband_width)
 {
     const uint8 *src;
     sint16 *l, *h;
@@ -163,12 +167,12 @@ rfx_dwt_2d_encode_block8(const uint8 *in_buffer,
     total_width = subband_width << 1;
 
     /* DWT in vertical direction, results in 2 sub-bands in L, H order in
-     * tmp buffer dwt. */
+     * tmp buffer. */
     for (x = 0; x < total_width; x++)
     {
 
         /* pre */
-        l = dwt + x;
+        l = tmp_buffer + x;
         h = l + subband_width * total_width;
         src = in_buffer + x;
         s1 = (src[total_width] - 128) << DWT_FACTOR;
@@ -182,7 +186,7 @@ rfx_dwt_2d_encode_block8(const uint8 *in_buffer,
         for (n = 1; n < subband_width - 1; n++)
         {
             y = n << 1;
-            l = dwt + n * total_width + x;
+            l = tmp_buffer + n * total_width + x;
             h = l + subband_width * total_width;
             src = in_buffer + y * total_width + x;
             s1 = (src[total_width] - 128) << DWT_FACTOR;
@@ -196,7 +200,7 @@ rfx_dwt_2d_encode_block8(const uint8 *in_buffer,
         /* post */
         n = subband_width - 1;
         y = n << 1;
-        l = dwt + n * total_width + x;
+        l = tmp_buffer + n * total_width + x;
         h = l + subband_width * total_width;
         src = in_buffer + y * total_width + x;
         s1 = (src[total_width] - 128) << DWT_FACTOR;
@@ -208,15 +212,16 @@ rfx_dwt_2d_encode_block8(const uint8 *in_buffer,
 
     }
 
-    return rfx_dwt_2d_encode_horz(buffer, dwt, subband_width);
+    return rfx_dwt_2d_encode_horz(tmp_buffer, out_buffer, subband_width);
 }
 
 /******************************************************************************/
 int
-rfx_dwt_2d_encode(const uint8 *in_buffer, sint16 *buffer, sint16 *dwt_buffer)
+rfx_dwt_2d_encode(const uint8 *in_buffer, sint16 *out_buffer,
+                  sint16 *tmp_buffer)
 {
-    rfx_dwt_2d_encode_block8(in_buffer, buffer, dwt_buffer, 32);
-    rfx_dwt_2d_encode_block(buffer + 3072, dwt_buffer, 16);
-    rfx_dwt_2d_encode_block(buffer + 3840, dwt_buffer, 8);
+    rfx_dwt_2d_encode_block8(in_buffer, out_buffer, tmp_buffer, 32);
+    rfx_dwt_2d_encode_block(out_buffer + 3072, tmp_buffer, 16);
+    rfx_dwt_2d_encode_block(out_buffer + 3840, tmp_buffer, 8);
     return 0;
 }

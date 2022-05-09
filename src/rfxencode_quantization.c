@@ -137,6 +137,22 @@ rfx_quantization_encode_block(sint16 *buffer, int buffer_size, uint32 factor)
 #endif
 
 /******************************************************************************/
+/* 
+    8 x  8 =   64
+   16 x 16 =  256
+   32 x 32 = 1024
+ 
+   HL1 = 32 x 32 = 1024 (1024)
+   LH1 = 32 x 32 = 1024 (2048)
+   HH1 = 32 x 32 = 1024 (3072)
+   HL2 = 16 x 16 =  256 (3328)
+   LH2 = 16 x 16 =  256 (3584)
+   HH2 = 16 x 16 =  256 (3840)
+   HL3 =  8 x  8 =   64 (3904)
+   LH3 =  8 x  8 =   64 (3968)
+   HH3 =  8 x  8 =   64 (4032)
+   LL3 =  8 x  8 =   64 (4096)
+*/
 int
 rfx_quantization_encode(sint16 *buffer, const char *qtable)
 {
@@ -162,6 +178,55 @@ rfx_quantization_encode(sint16 *buffer, const char *qtable)
     rfx_quantization_encode_block(buffer + 3968, 64, factor); /* HH3 */
     factor = ((qtable[0] >> 0) & 0xf) - 6;
     rfx_quantization_encode_block(buffer + 4032, 64, factor); /* LL3 */
+    return 0;
+}
+
+/******************************************************************************/
+/* 
+    8 x  8 =   64
+    8 x  9 =   72
+    9 x  9 =   81
+   16 x 16 =  256
+   16 x 17 =  272
+   31 x 31 =  961
+   31 x 33 = 1023
+ 
+   HL1 = 31 x 33 = 1023 (1023)
+   LH1 = 33 x 31 = 1023 (2046)
+   HH1 = 31 x 31 =  961 (3007)
+   HL2 = 16 x 17 =  272 (3279)
+   LH2 = 17 x 16 =  272 (3551)
+   HH2 = 16 x 16 =  256 (3807)
+   HL3 =  8 x  9 =   72 (3879)
+   LH3 =  9 x  8 =   72 (3951)
+   HH3 =  8 x  8 =   64 (4015)
+   LL3 =  9 x  9 =   81 (4096)
+*/
+int
+rfx_rem_quantization_encode(sint16 *buffer, const char *qtable)
+{
+    uint32 factor;
+
+    factor = ((qtable[4] >> 0) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer, 1023, factor); /* HL1 */
+    factor = ((qtable[3] >> 4) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 1023, 1023, factor); /* LH1 */
+    factor = ((qtable[4] >> 4) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 2046, 961, factor); /* HH1 */
+    factor = ((qtable[2] >> 4) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 3007, 272, factor); /* HL2 */
+    factor = ((qtable[2] >> 0) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 3279, 272, factor); /* LH2 */
+    factor = ((qtable[3] >> 0) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 3551, 256, factor); /* HH2 */
+    factor = ((qtable[1] >> 0) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 3807, 72, factor); /* HL3 */
+    factor = ((qtable[0] >> 4) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 3879, 72, factor); /* LH3 */
+    factor = ((qtable[1] >> 4) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 3951, 64, factor); /* HH3 */
+    factor = ((qtable[0] >> 0) & 0xf) - 6;
+    rfx_quantization_encode_block(buffer + 4015, 81, factor); /* LL3 */
     return 0;
 }
 

@@ -33,10 +33,13 @@
 #include "rfxconstants.h"
 #include "rfxencode_tile.h"
 #include "rfxencode_dwt.h"
+#include "rfxencode_dwt_rem.h"
 #include "rfxencode_quantization.h"
 #include "rfxencode_differential.h"
 #include "rfxencode_rlgr1.h"
 #include "rfxencode_rlgr3.h"
+#include "rfxencode_diff_rlgr1.h"
+#include "rfxencode_diff_rlgr3.h"
 #include "rfxencode_alpha.h"
 
 #ifdef RFX_USE_ACCEL_X86

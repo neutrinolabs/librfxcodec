@@ -53,7 +53,7 @@ rfx_encode_component_rlgr1_amd64_sse2(struct rfxencode *enc, const char *qtable,
     {
         return 1;
     }
-    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer1, buffer, buffer_size);
+    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer1, buffer, buffer_size, 64);
     return 0;
 }
 
@@ -69,7 +69,7 @@ rfx_encode_component_rlgr3_amd64_sse2(struct rfxencode *enc, const char *qtable,
     {
         return 1;
     }
-    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer1, buffer, buffer_size);
+    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer1, buffer, buffer_size, 64);
     return 0;
 }
 
@@ -85,7 +85,7 @@ rfx_encode_component_rlgr1_amd64_sse41(struct rfxencode *enc, const char *qtable
     {
         return 1;
     }
-    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer1, buffer, buffer_size);
+    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer1, buffer, buffer_size, 64);
     return 0;
 }
 
@@ -101,6 +101,6 @@ rfx_encode_component_rlgr3_amd64_sse41(struct rfxencode *enc, const char *qtable
     {
         return 1;
     }
-    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer1, buffer, buffer_size);
+    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer1, buffer, buffer_size, 64);
     return 0;
 }
