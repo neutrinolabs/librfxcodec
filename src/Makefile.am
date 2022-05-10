@@ -38,6 +38,8 @@ noinst_HEADERS = \
 
 lib_LTLIBRARIES = librfxencode.la
 
+librfxencode_la_LDFLAGS = -all-static
+
 librfxencode_la_SOURCES = $(noinst_HEADERS) rfxencode.c \
   rfxencode_compose.c rfxencode_tile.c rfxencode_dwt.c \
   rfxencode_quantization.c rfxencode_differential.c \
