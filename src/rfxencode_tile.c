@@ -50,7 +50,11 @@
 #include "amd64/funcs_amd64.h"
 #endif
 
-#define LLOG_LEVEL 1
+#ifdef RFX_USE_ACCEL_ARM64
+#include "arm64/funcs_arm64.h"
+#endif
+
+#define LLOG_LEVEL 5
 #define LLOGLN(_level, _args) \
     do { if (_level < LLOG_LEVEL) { printf _args ; printf("\n"); } } while (0)
 

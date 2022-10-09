@@ -48,6 +48,10 @@
 #include "amd64/funcs_amd64.h"
 #endif
 
+#ifdef RFX_USE_ACCEL_ARM64
+#include "arm64/funcs_arm64.h"
+#endif
+
 /******************************************************************************/
 int
 rfxcodec_encode_create_ex(int width, int height, int format, int flags,
@@ -128,6 +132,11 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
         printf("rfxcodec_encode_create: got sse4.a\n");
         enc->got_sse4a = 1;
     }
+
+#ifdef RFX_USE_ACCEL_ARM64
+    // FIXME;
+    enc->got_neon = 1;
+#endif
 
     enc->width = width;
     enc->height = height;
@@ -245,6 +254,33 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
             {
                 printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1_amd64_sse2\n");
                 enc->rfx_encode = rfx_encode_component_rlgr1_amd64_sse2; /* rfxencode_tile.c */
+            }
+        }
+        else
+        {
+            if (enc->mode == RLGR3)
+            {
+                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3\n");
+                enc->rfx_encode = rfx_encode_component_rlgr3; /* rfxencode_tile.c */
+            }
+            else
+            {
+                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1\n");
+                enc->rfx_encode = rfx_encode_component_rlgr1; /* rfxencode_tile.c */
+            }
+        }
+#elif defined(RFX_USE_ACCEL_ARM64)
+        if (enc->got_neon)
+        {
+            if (enc->mode == RLGR3)
+            {
+                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3_arm64_neon\n");
+                enc->rfx_encode = rfx_encode_component_rlgr3_arm64_neon;
+            }
+            else
+            {
+                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1_arm64_neon\n");
+                enc->rfx_encode = rfx_encode_component_rlgr1_arm64_neon;
             }
         }
         else
@@ -410,6 +446,9 @@ rfxcodec_encode_get_internals(struct rfxcodec_encode_internals *internals)
 #if defined(RFX_USE_ACCEL_AMD64)
     internals->rfxencode_dwt_shift_amd64_sse2 = rfxcodec_encode_dwt_shift_amd64_sse2;
     internals->rfxencode_dwt_shift_amd64_sse41 = rfxcodec_encode_dwt_shift_amd64_sse41;
+#endif
+#if defined(RFX_USE_ACCEL_ARM64)
+    internals->rfxencode_dwt_shift_amd64_neon = rfxcodec_encode_dwt_shift_arm64_neon;
 #endif
     return 0;
 }

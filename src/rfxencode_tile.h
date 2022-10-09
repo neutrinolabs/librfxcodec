@@ -94,4 +94,13 @@ rfx_encode_component_rlgr3_amd64_sse41(struct rfxencode *enc, const char *qtable
                                        const uint8 *data,
                                        uint8 *buffer, int buffer_size, int *size);
 
+int
+rfx_encode_component_rlgr1_arm64_neon(struct rfxencode *enc, const char *qtable,
+                                      const uint8 *data,
+                                      uint8 *buffer, int buffer_size, int *size);
+int
+rfx_encode_component_rlgr3_arm64_neon(struct rfxencode *enc, const char *qtable,
+                                      const uint8 *data,
+                                      uint8 *buffer, int buffer_size, int *size);
+
 #endif
