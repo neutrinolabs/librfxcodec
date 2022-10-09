@@ -45,6 +45,13 @@
 #define LLOGLN(_level, _args) \
     do { if (_level < LLOG_LEVEL) { printf _args ; printf("\n"); } } while (0)
 
+union virt_register {
+    uint8_t al;
+    uint16_t ax;
+    uint32_t eax;
+    uint64_t rax;
+};
+
 struct cpu_context {
     int16x8_t xmm0;
     int16x8_t xmm1;
@@ -63,8 +70,8 @@ struct cpu_context {
     int16x8_t xmm14;
     int16x8_t xmm15;
     
-    int64_t rax;
-    int64_t rbx;
+    union virt_register rax;
+    union virt_register rbx;
     int64_t rcx;
     int64_t rdx;
     
@@ -113,16 +120,16 @@ const static int16x8_t RODATA[] = {
 
 void
 rfx_dwt_2d_encode_block_horiz_16_16(struct cpu_context *context,
-                                    const short *in_buffer,
-                                    short *out_hi_buffer,
-                                    short *out_lo_buffer)
+                                    const uint8_t *in_buffer,
+                                    uint8_t *out_hi_buffer,
+                                    uint8_t *out_lo_buffer)
 {
     int32_t ecx = 8;
     loop1a:
     while (ecx != 0) {
         // pre / post
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1, cdFFFF);
@@ -139,8 +146,8 @@ rfx_dwt_2d_encode_block_horiz_16_16(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
         movdqa(&context->xmm5, context->xmm7);
@@ -161,13 +168,13 @@ rfx_dwt_2d_encode_block_horiz_16_16(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
-        store_dword(context->rax, context->xmm7);
+        store_dword(context->rax.eax, context->xmm7);
         pslldq(context->xmm7, 2);
-        context->rax = context->rax & 0xFFFF;
-        load_dword(context->xmm6, context->rax);
+        context->rax.eax = context->rax.eax & 0xFFFF;
+        load_dword(context->xmm6, context->rax.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
@@ -176,22 +183,22 @@ rfx_dwt_2d_encode_block_horiz_16_16(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out lo
         paddw(context->xmm6, context->xmm10);
         psraw_vec(context->xmm6, context->xmm11);
-        movdqa((void *) out_lo_buffer, context->xmm6);
+        movdqa(out_lo_buffer, context->xmm6);
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // move left
-        in_buffer = (void *) in_buffer - (16 * 2);
-        out_hi_buffer = (void *) out_hi_buffer - (8 * 2);
-        out_lo_buffer = (void *) out_lo_buffer - (8 * 2);
+        in_buffer = in_buffer - (16 * 2);
+        out_hi_buffer = out_hi_buffer - (8 * 2);
+        out_lo_buffer = out_lo_buffer - (8 * 2);
     
         // move down
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer =  (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         ecx--;
     }
@@ -199,9 +206,9 @@ rfx_dwt_2d_encode_block_horiz_16_16(struct cpu_context *context,
 
 void
 rfx_dwt_2d_encode_block_verti_16_16(struct cpu_context *context,
-                                    const short *in_buffer,
-                                    short *out_hi_buffer,
-                                    short *out_lo_buffer)
+                                    const uint8_t *in_buffer,
+                                    uint8_t *out_hi_buffer,
+                                    uint8_t *out_lo_buffer)
 {
     int16_t cx = 0;
     int32_t ecx = 2;
@@ -209,9 +216,9 @@ rfx_dwt_2d_encode_block_verti_16_16(struct cpu_context *context,
     loop1b:
     while (ecx != 0) {
         // pre
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16 * 2);         // src[2n + 1]
-        load_dqword(context->xmm3, (void *) in_buffer + 16 * 2 * 2);     // src[2n + 2]
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16 * 2);         // src[2n + 1]
+        load_dqword(context->xmm3, in_buffer + 16 * 2 * 2);     // src[2n + 2]
         movdqa(&context->xmm4, context->xmm1);
         movdqa(&context->xmm5, context->xmm2);
         movdqa(&context->xmm6, context->xmm3);
@@ -220,24 +227,24 @@ rfx_dwt_2d_encode_block_verti_16_16(struct cpu_context *context,
         psraw(context->xmm4, 1);
         psubw(context->xmm5, context->xmm4);
         psraw(context->xmm5, 1);
-        movdqa((void *) out_hi_buffer, context->xmm5);                  // out hi
+        movdqa(out_hi_buffer, context->xmm5);                  // out hi
         movdqa(&context->xmm6, context->xmm5);                   // save hi
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         paddw(context->xmm5, context->xmm1);
-        movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+        movdqa(out_lo_buffer, context->xmm5);                  // out lo
         movdqa(&context->xmm7, context->xmm6);                   // save hi
         // move down
-        in_buffer = (void *) in_buffer + 16 * 2 * 2;         // 2 rows
-        out_hi_buffer = (void *) out_hi_buffer + 16 * 2;             // 1 row
-        out_lo_buffer = (void *) out_lo_buffer + 16 * 2;             // 1 row
+        in_buffer = in_buffer + 16 * 2 * 2;         // 2 rows
+        out_hi_buffer = out_hi_buffer + 16 * 2;             // 1 row
+        out_lo_buffer = out_lo_buffer + 16 * 2;             // 1 row
     
         // loop
         cx = 6;
         loop2b:
         while (cx != 0) {
             movdqa(&context->xmm1, context->xmm3);                   // src[2n]
-            load_dqword(context->xmm2, (void *) in_buffer + 16 * 2);         // src[2n + 1]
-            load_dqword(context->xmm3, (void *) in_buffer + 16 * 2 * 2);     // src[2n + 2]
+            load_dqword(context->xmm2, in_buffer + 16 * 2);         // src[2n + 1]
+            load_dqword(context->xmm3, in_buffer + 16 * 2 * 2);     // src[2n + 2]
             movdqa(&context->xmm4, context->xmm1);
             movdqa(&context->xmm5, context->xmm2);
             movdqa(&context->xmm6, context->xmm3);
@@ -246,25 +253,25 @@ rfx_dwt_2d_encode_block_verti_16_16(struct cpu_context *context,
             psraw(context->xmm4, 1);
             psubw(context->xmm5, context->xmm4);
             psraw(context->xmm5, 1);
-            movdqa((void *) out_hi_buffer, context->xmm5);                  // out hi
+            movdqa(out_hi_buffer, context->xmm5);                  // out hi
             movdqa(&context->xmm6, context->xmm5);                   // save hi
             // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
             paddw(context->xmm5, context->xmm7);
             psraw(context->xmm5, 1);
             paddw(context->xmm5, context->xmm1);
-            movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+            movdqa(out_lo_buffer, context->xmm5);                  // out lo
             movdqa(&context->xmm7, context->xmm6);                   // save hi
             // move down
-            in_buffer = (void *) in_buffer + 16 * 2 * 2;         // 2 rows
-            out_hi_buffer = (void *) out_hi_buffer + 16 * 2;             // 1 row
-            out_lo_buffer = (void *) out_lo_buffer + 16 * 2;             // 1 row
+            in_buffer = in_buffer + 16 * 2 * 2;         // 2 rows
+            out_hi_buffer = out_hi_buffer + 16 * 2;             // 1 row
+            out_lo_buffer = out_lo_buffer + 16 * 2;             // 1 row
     
             cx--;
         }
     
         // post
         movdqa(&context->xmm1, context->xmm3);                   // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16 * 2);         // src[2n + 1]
+        load_dqword(context->xmm2, in_buffer + 16 * 2);         // src[2n + 1]
         movdqa(&context->xmm4, context->xmm1);
         movdqa(&context->xmm5, context->xmm2);
         movdqa(&context->xmm6, context->xmm3);
@@ -273,26 +280,26 @@ rfx_dwt_2d_encode_block_verti_16_16(struct cpu_context *context,
         psraw(context->xmm4, 1);
         psubw(context->xmm5, context->xmm4);
         psraw(context->xmm5, 1);
-        movdqa((void *) out_hi_buffer, context->xmm5);                  // out hi
+        movdqa(out_hi_buffer, context->xmm5);                  // out hi
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
         paddw(context->xmm5, context->xmm1);
-        movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+        movdqa(out_lo_buffer, context->xmm5);                  // out lo
         // move down
-        in_buffer = (void *) in_buffer + 16 * 2 * 2;         // 2 row
-        out_hi_buffer = (void *) out_hi_buffer + 16 * 2;             // 1 row
-        out_lo_buffer = (void *) out_lo_buffer + 16 * 2;             // 1 row
+        in_buffer = in_buffer + 16 * 2 * 2;         // 2 row
+        out_hi_buffer = out_hi_buffer + 16 * 2;             // 1 row
+        out_lo_buffer = out_lo_buffer + 16 * 2;             // 1 row
     
         // move up
-        in_buffer = (void *) in_buffer - (16 * 16 * 2);
-        out_hi_buffer = (void *) out_hi_buffer - (8 * 16 * 2);
-        out_lo_buffer = (void *) out_lo_buffer - (8 * 16 * 2);
+        in_buffer = in_buffer - (16 * 16 * 2);
+        out_hi_buffer = out_hi_buffer - (8 * 16 * 2);
+        out_lo_buffer = out_lo_buffer - (8 * 16 * 2);
     
         // move right
-        in_buffer = (void *) in_buffer + 16;
-        out_hi_buffer = (void *) out_hi_buffer + 16;
-        out_lo_buffer = (void *) out_lo_buffer + 16;
+        in_buffer = in_buffer + 16;
+        out_hi_buffer = out_hi_buffer + 16;
+        out_lo_buffer = out_lo_buffer + 16;
     
         ecx--;
     }
@@ -300,16 +307,16 @@ rfx_dwt_2d_encode_block_verti_16_16(struct cpu_context *context,
 
 void
 rfx_dwt_2d_encode_block_horiz_16_32(struct cpu_context *context,
-                                    const short *in_buffer,
-                                    short *out_hi_buffer,
-                                    short *out_lo_buffer)
+                                    const uint8_t *in_buffer,
+                                    uint8_t *out_hi_buffer,
+                                    uint8_t *out_lo_buffer)
 {
     int32_t ecx = 16;
     // loop1c:
     while (ecx != 0) {
         // pre
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1, cdFFFF);
@@ -326,12 +333,13 @@ rfx_dwt_2d_encode_block_horiz_16_32(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
-        context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
-        load_dword(context->xmm5, context->rax);
+        // context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
+        context->rax.eax = *((int32_t *) (in_buffer + 32));
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm4, context->xmm5);
         pand(context->xmm3, cdFFFF);
@@ -349,36 +357,36 @@ rfx_dwt_2d_encode_block_horiz_16_32(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
         movdqa(&context->xmm2, context->xmm5);                   // save hi
     
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
-        store_dword(context->rax, context->xmm7);
+        store_dword(context->rax.eax, context->xmm7);
         pslldq(context->xmm7, 2);
-        context->rax = context->rax & 0xFFFF;
-        load_dword(context->xmm6, context->rax);
+        context->rax.eax = context->rax.eax & 0xFFFF;
+        load_dword(context->xmm6, context->rax.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
         paddw(context->xmm5, context->xmm1);
     
         psrldq(context->xmm2, 14);
-        store_dword(context->rbx, context->xmm2);                      // save hi
+        store_dword(context->rbx.eax, context->xmm2);                      // save hi
     
         movdqa(&context->xmm6, context->xmm5);                   // out lo
         paddw(context->xmm6, context->xmm10);
         psraw_vec(context->xmm6, context->xmm11);
-        movdqa((void *) out_lo_buffer, context->xmm6);
+        movdqa(out_lo_buffer, context->xmm6);
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // post
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1, cdFFFF);
@@ -395,8 +403,8 @@ rfx_dwt_2d_encode_block_horiz_16_32(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
         movdqa(&context->xmm5, context->xmm7);
@@ -418,12 +426,12 @@ rfx_dwt_2d_encode_block_horiz_16_32(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
     
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
         pslldq(context->xmm7, 2);
-        load_dword(context->xmm6, context->rbx);
+        load_dword(context->xmm6, context->rbx.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
@@ -432,22 +440,22 @@ rfx_dwt_2d_encode_block_horiz_16_32(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out lo
         paddw(context->xmm6, context->xmm10);
         psraw_vec(context->xmm6, context->xmm11);
-        movdqa((void *) out_lo_buffer, context->xmm6);
+        movdqa(out_lo_buffer, context->xmm6);
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // move left
-        in_buffer = (void *) in_buffer - (32 * 2);
-        out_hi_buffer = (void *) out_hi_buffer - (16 * 2);
-        out_lo_buffer = (void *) out_lo_buffer - (16 * 2);
+        in_buffer = in_buffer - (32 * 2);
+        out_hi_buffer = out_hi_buffer - (16 * 2);
+        out_lo_buffer = out_lo_buffer - (16 * 2);
     
         // move down
-        in_buffer = (void *) in_buffer + 32 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 16 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 16 * 2;
+        in_buffer = in_buffer + 32 * 2;
+        out_hi_buffer = out_hi_buffer + 16 * 2;
+        out_lo_buffer = out_lo_buffer + 16 * 2;
     
         ecx--;
     }
@@ -455,17 +463,17 @@ rfx_dwt_2d_encode_block_horiz_16_32(struct cpu_context *context,
 
 void
 rfx_dwt_2d_encode_block_horiz_16_32_no_lo(struct cpu_context *context,
-                                          const short *in_buffer, // rsi
-                                          short *out_hi_buffer,  // rdi
-                                          short *out_lo_buffer)  // rdx
+                                          const uint8_t *in_buffer, // rsi
+                                          uint8_t *out_hi_buffer,  // rdi
+                                          uint8_t *out_lo_buffer)  // rdx
 {
     int32_t ecx = 16;
     
     // loop1c1:
     while (ecx != 0) {
         // pre
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1, cdFFFF);
@@ -482,12 +490,13 @@ rfx_dwt_2d_encode_block_horiz_16_32_no_lo(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
-        context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
-        load_dword(context->xmm5, context->rax);
+        // context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
+        context->rax.eax = *((int32_t *) (in_buffer + 32));
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm4, context->xmm5);
         pand(context->xmm3, cdFFFF);
@@ -505,33 +514,33 @@ rfx_dwt_2d_encode_block_horiz_16_32_no_lo(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
         movdqa(&context->xmm2, context->xmm5);                   // save hi
     
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
-        store_dword(context->rax, context->xmm7);
+        store_dword(context->rax.eax, context->xmm7);
         pslldq(context->xmm7, 2);
-        context->rax = context->rax & 0xFFFF;
-        load_dword(context->xmm6, context->rax);
+        context->rax.eax = context->rax.eax & 0xFFFF;
+        load_dword(context->xmm6, context->rax.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
         paddw(context->xmm5, context->xmm1);
     
         psrldq(context->xmm2, 14);
-        store_dword(context->rbx, context->xmm2);                      // save hi
+        store_dword(context->rbx.eax, context->xmm2);                      // save hi
     
-        movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+        movdqa(out_lo_buffer, context->xmm5);                  // out lo
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // post
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1, cdFFFF);
@@ -548,8 +557,8 @@ rfx_dwt_2d_encode_block_horiz_16_32_no_lo(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
         movdqa(&context->xmm5, context->xmm7);
@@ -571,33 +580,33 @@ rfx_dwt_2d_encode_block_horiz_16_32_no_lo(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
     
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
         pslldq(context->xmm7, 2);
-        load_dword(context->xmm6, context->rbx);
+        load_dword(context->xmm6, context->rbx.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
         paddw(context->xmm5, context->xmm1);
     
-        movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+        movdqa(out_lo_buffer, context->xmm5);                  // out lo
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // move left
-        in_buffer = (void *) in_buffer - (32 * 2);
-        out_hi_buffer = (void *) out_hi_buffer - (16 * 2);
-        out_lo_buffer = (void *) out_lo_buffer - (16 * 2);
+        in_buffer = in_buffer - (32 * 2);
+        out_hi_buffer = out_hi_buffer - (16 * 2);
+        out_lo_buffer = out_lo_buffer - (16 * 2);
     
         // move down
-        in_buffer = (void *) in_buffer + 32 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 16 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 16 * 2;
+        in_buffer = in_buffer + 32 * 2;
+        out_hi_buffer = out_hi_buffer + 16 * 2;
+        out_lo_buffer = out_lo_buffer + 16 * 2;
     
         ecx--;
     }
@@ -605,9 +614,9 @@ rfx_dwt_2d_encode_block_horiz_16_32_no_lo(struct cpu_context *context,
 
 void
 rfx_dwt_2d_encode_block_verti_16_32(struct cpu_context *context,
-                                    const short *in_buffer,  // rsi
-                                    short *out_hi_buffer,   // rdi
-                                    short *out_lo_buffer)   // rdx
+                                    const uint8_t *in_buffer,  // rsi
+                                    uint8_t *out_hi_buffer,   // rdi
+                                    uint8_t *out_lo_buffer)   // rdx
 {
     int16_t cx = 0;
     int32_t ecx = 4;
@@ -615,9 +624,9 @@ rfx_dwt_2d_encode_block_verti_16_32(struct cpu_context *context,
     // loop1d:
     while (ecx != 0) {
         // pre
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 32 * 2);         // src[2n + 1]
-        load_dqword(context->xmm3, (void *) in_buffer + 32 * 2 * 2);     // src[2n + 2]
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 32 * 2);         // src[2n + 1]
+        load_dqword(context->xmm3, in_buffer + 32 * 2 * 2);     // src[2n + 2]
         movdqa(&context->xmm4, context->xmm1);
         movdqa(&context->xmm5, context->xmm2);
         movdqa(&context->xmm6, context->xmm3);
@@ -626,16 +635,16 @@ rfx_dwt_2d_encode_block_verti_16_32(struct cpu_context *context,
         psraw(context->xmm4, 1);
         psubw(context->xmm5, context->xmm4);
         psraw(context->xmm5, 1);
-        movdqa((void *) out_hi_buffer, context->xmm5);                  // out hi
+        movdqa(out_hi_buffer, context->xmm5);                  // out hi
         movdqa(&context->xmm6, context->xmm5);                   // save hi
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         paddw(context->xmm5, context->xmm1);
-        movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+        movdqa(out_lo_buffer, context->xmm5);                  // out lo
         movdqa(&context->xmm7, context->xmm6);                   // save hi
         // move down
-        in_buffer = (void *) in_buffer + 32 * 2 * 2;         // 2 rows
-        out_hi_buffer = (void *) out_hi_buffer + 32 * 2;             // 1 row
-        out_lo_buffer = (void *) out_lo_buffer + 32 * 2;             // 1 row
+        in_buffer = in_buffer + 32 * 2 * 2;         // 2 rows
+        out_hi_buffer = out_hi_buffer + 32 * 2;             // 1 row
+        out_lo_buffer = out_lo_buffer + 32 * 2;             // 1 row
     
         // loop
         cx = 14;
@@ -643,8 +652,8 @@ rfx_dwt_2d_encode_block_verti_16_32(struct cpu_context *context,
         // loop2d:
         while (cx != 0) {
             movdqa(&context->xmm1, context->xmm3);                   // src[2n]
-            load_dqword(context->xmm2, (void *) in_buffer + 32 * 2);         // src[2n + 1]
-            load_dqword(context->xmm3, (void *) in_buffer + 32 * 2 * 2);     // src[2n + 2]
+            load_dqword(context->xmm2, in_buffer + 32 * 2);         // src[2n + 1]
+            load_dqword(context->xmm3, in_buffer + 32 * 2 * 2);     // src[2n + 2]
             movdqa(&context->xmm4, context->xmm1);
             movdqa(&context->xmm5, context->xmm2);
             movdqa(&context->xmm6, context->xmm3);
@@ -653,25 +662,25 @@ rfx_dwt_2d_encode_block_verti_16_32(struct cpu_context *context,
             psraw(context->xmm4, 1);
             psubw(context->xmm5, context->xmm4);
             psraw(context->xmm5, 1);
-            movdqa((void *) out_hi_buffer, context->xmm5);                  // out hi
+            movdqa(out_hi_buffer, context->xmm5);                  // out hi
             movdqa(&context->xmm6, context->xmm5);                   // save hi
             // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
             paddw(context->xmm5, context->xmm7);
             psraw(context->xmm5, 1);
             paddw(context->xmm5, context->xmm1);
-            movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+            movdqa(out_lo_buffer, context->xmm5);                  // out lo
             movdqa(&context->xmm7, context->xmm6);                   // save hi
             // move down
-            in_buffer = (void *) in_buffer + 32 * 2 * 2;         // 2 rows
-            out_hi_buffer = (void *) out_hi_buffer + 32 * 2;             // 1 row
-            out_lo_buffer = (void *) out_lo_buffer + 32 * 2;             // 1 row
+            in_buffer = in_buffer + 32 * 2 * 2;         // 2 rows
+            out_hi_buffer = out_hi_buffer + 32 * 2;             // 1 row
+            out_lo_buffer = out_lo_buffer + 32 * 2;             // 1 row
     
             cx--;
         }
     
         // post
         movdqa(&context->xmm1, context->xmm3);                   // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 32 * 2);         // src[2n + 1]
+        load_dqword(context->xmm2, in_buffer + 32 * 2);         // src[2n + 1]
         movdqa(&context->xmm4, context->xmm1);
         movdqa(&context->xmm5, context->xmm2);
         movdqa(&context->xmm6, context->xmm3);
@@ -680,27 +689,27 @@ rfx_dwt_2d_encode_block_verti_16_32(struct cpu_context *context,
         psraw(context->xmm4, 1);
         psubw(context->xmm5, context->xmm4);
         psraw(context->xmm5, 1);
-        movdqa((void *) out_hi_buffer, context->xmm5);                  // out hi
+        movdqa(out_hi_buffer, context->xmm5);                  // out hi
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
         paddw(context->xmm5, context->xmm1);
-        movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+        movdqa(out_lo_buffer, context->xmm5);                  // out lo
         
         // move down
-        in_buffer = (void *) in_buffer + 32 * 2 * 2;         // 2 row
-        out_hi_buffer = (void *) out_hi_buffer + 32 * 2;             // 1 row
-        out_lo_buffer = (void *) out_lo_buffer + 32 * 2;             // 1 row
+        in_buffer = in_buffer + 32 * 2 * 2;         // 2 row
+        out_hi_buffer = out_hi_buffer + 32 * 2;             // 1 row
+        out_lo_buffer = out_lo_buffer + 32 * 2;             // 1 row
     
         // move up
-        in_buffer = (void *) in_buffer - (32 * 32 * 2);
-        out_hi_buffer = (void *) out_hi_buffer - (16 * 32 * 2);
-        out_lo_buffer = (void *) out_lo_buffer - (16 * 32 * 2);
+        in_buffer = in_buffer - (32 * 32 * 2);
+        out_hi_buffer = out_hi_buffer - (16 * 32 * 2);
+        out_lo_buffer = out_lo_buffer - (16 * 32 * 2);
     
         // move right
-        in_buffer = (void *) in_buffer + 16;
-        out_hi_buffer = (void *) out_hi_buffer + 16;
-        out_lo_buffer = (void *) out_lo_buffer + 16;
+        in_buffer = in_buffer + 16;
+        out_hi_buffer = out_hi_buffer + 16;
+        out_lo_buffer = out_lo_buffer + 16;
     
         ecx--;
     }
@@ -708,9 +717,9 @@ rfx_dwt_2d_encode_block_verti_16_32(struct cpu_context *context,
 
 void
 rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
-                                    const short *in_buffer, // rsi
-                                    short *out_hi_buffer,  // rdi
-                                    short *out_lo_buffer)  // rdx
+                                    const uint8_t *in_buffer, // rsi
+                                    uint8_t *out_hi_buffer,  // rdi
+                                    uint8_t *out_lo_buffer)  // rdx
 {
     int16_t cx = 0;
     int32_t ecx = 32;
@@ -718,8 +727,8 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
     // loop1e:
     while (ecx != 0) {
         // pre
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1, cdFFFF);
@@ -736,12 +745,13 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
-        context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
-        load_dword(context->xmm5, context->rax);
+        // context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
+        context->rax.eax = *((int32_t *) (in_buffer + 32));
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm4, context->xmm5);
         pand(context->xmm3, cdFFFF);
@@ -759,40 +769,40 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
         movdqa(&context->xmm2, context->xmm5);                   // save hi
     
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
-        store_dword(context->rax, context->xmm7);
+        store_dword(context->rax.eax, context->xmm7);
         pslldq(context->xmm7, 2);
-        context->rax = context->rax & 0xFFFF;
-        load_dword(context->xmm6, context->rax);
+        context->rax.eax = context->rax.eax & 0xFFFF;
+        load_dword(context->xmm6, context->rax.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
         paddw(context->xmm5, context->xmm1);
     
         psrldq(context->xmm2, 14);
-        store_dword(context->rbx, context->xmm2);                      // save hi
+        store_dword(context->rbx.eax, context->xmm2);                      // save hi
     
         movdqa(&context->xmm6, context->xmm5);                   // out lo
         paddw(context->xmm6, context->xmm10);
         psraw_vec(context->xmm6, context->xmm11);
-        movdqa((void *) out_lo_buffer, context->xmm6);
+        movdqa(out_lo_buffer, context->xmm6);
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // loop
         cx = 2;
         
         // loop2e:
         while (cx != 0) {
-            load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-            load_dqword(context->xmm2, (void *) in_buffer + 16);
+            load_dqword(context->xmm1, in_buffer);                  // src[2n]
+            load_dqword(context->xmm2, in_buffer + 16);
             movdqa(&context->xmm6, context->xmm1);
             movdqa(&context->xmm7, context->xmm2);
             pand(context->xmm1, cdFFFF);
@@ -809,12 +819,13 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
             movdqa(&context->xmm4, context->xmm7);
             psrldq(context->xmm3, 4);
             psrldq(context->xmm4, 4);
-            store_dword(context->rax, context->xmm7);
-            load_dword(context->xmm5, context->rax);
+            store_dword(context->rax.eax, context->xmm7);
+            load_dword(context->xmm5, context->rax.eax);
             pslldq(context->xmm5, 12);
             por(context->xmm3, context->xmm5);
-            context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
-            load_dword(context->xmm5, context->rax);
+            // context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
+            context->rax.eax = *((int32_t *) (in_buffer + 32));
+            load_dword(context->xmm5, context->rax.eax);
             pslldq(context->xmm5, 12);
             por(context->xmm4, context->xmm5);
             pand(context->xmm3, cdFFFF);
@@ -832,37 +843,37 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
             movdqa(&context->xmm6, context->xmm5);                   // out hi
             paddw(context->xmm6, context->xmm8);
             psraw_vec(context->xmm6, context->xmm9);
-            movdqa((void *) out_hi_buffer, context->xmm6);
+            movdqa(out_hi_buffer, context->xmm6);
             movdqa(&context->xmm2, context->xmm5);                   // save hi
     
             // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
             movdqa(&context->xmm7, context->xmm5);
             pslldq(context->xmm7, 2);
-            load_dword(context->xmm6, context->rbx);
+            load_dword(context->xmm6, context->rbx.eax);
             por(context->xmm7, context->xmm6);
             paddw(context->xmm5, context->xmm7);
             psraw(context->xmm5, 1);
             paddw(context->xmm5, context->xmm1);
     
             psrldq(context->xmm2, 14);
-            store_dword(context->rbx, context->xmm2);                      // save hi
+            store_dword(context->rbx.eax, context->xmm2);                      // save hi
     
             movdqa(&context->xmm6, context->xmm5);                   // out lo
             paddw(context->xmm6, context->xmm10);
             psraw_vec(context->xmm6, context->xmm11);
-            movdqa((void *) out_lo_buffer, context->xmm6);
+            movdqa(out_lo_buffer, context->xmm6);
     
             // move right
-            in_buffer = (void *) in_buffer + 16 * 2;
-            out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-            out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+            in_buffer = in_buffer + 16 * 2;
+            out_hi_buffer = out_hi_buffer + 8 * 2;
+            out_lo_buffer = out_lo_buffer + 8 * 2;
     
             cx--;
         }
     
         // post
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1, cdFFFF);
@@ -879,10 +890,8 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-    
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
-    
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
         movdqa(&context->xmm5, context->xmm7);
@@ -904,14 +913,12 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
     
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
         pslldq(context->xmm7, 2);
-    
-        load_dword(context->xmm6, context->rbx);
-    
+        load_dword(context->xmm6, context->rbx.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
@@ -920,22 +927,22 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out lo
         paddw(context->xmm6, context->xmm10);
         psraw_vec(context->xmm6, context->xmm11);
-        movdqa((void *) out_lo_buffer, context->xmm6);
+        movdqa(out_lo_buffer, context->xmm6);
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // move left
-        in_buffer = (void *) in_buffer - (64 * 2);
-        out_hi_buffer = (void *) out_hi_buffer - (32 * 2);
-        out_lo_buffer = (void *) out_lo_buffer - (32 * 2);
+        in_buffer = in_buffer - (64 * 2);
+        out_hi_buffer = out_hi_buffer - (32 * 2);
+        out_lo_buffer = out_lo_buffer - (32 * 2);
     
         // move down
-        in_buffer = (void *) in_buffer + 64 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 32 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 32 * 2;
+        in_buffer = in_buffer + 64 * 2;
+        out_hi_buffer = out_hi_buffer + 32 * 2;
+        out_lo_buffer = out_lo_buffer + 32 * 2;
     
         ecx--;
     }
@@ -943,9 +950,9 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
 
 void
 rfx_dwt_2d_encode_block_horiz_16_64_no_lo(struct cpu_context *context,
-                                          const short *in_buffer, // rsi
-                                          short *out_hi_buffer,  // rdi
-                                          short *out_lo_buffer)  // rdx
+                                          const uint8_t *in_buffer, // rsi
+                                          uint8_t *out_hi_buffer,  // rdi
+                                          uint8_t *out_lo_buffer)  // rdx
 {
     int32_t ecx = 32;
     int16_t cx = 0;
@@ -954,8 +961,8 @@ rfx_dwt_2d_encode_block_horiz_16_64_no_lo(struct cpu_context *context,
     // loop1e1
     while (ecx != 0) {
         // pre
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1,cdFFFF);
@@ -972,19 +979,12 @@ rfx_dwt_2d_encode_block_horiz_16_64_no_lo(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-        
-        // mov eax, ...
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
-        
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
-    
-        // mov(eax,(void *) in_buffer + 32);
-        // load_dword(context->xmm5, context->rax);
-        context->rax = *((int32_t *) in_buffer + 32);
-        load_dword(context->xmm5, context->rax);
-        
+        context->rax.eax = *((int32_t *) (in_buffer + 32));
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm4, context->xmm5);
         pand(context->xmm3,cdFFFF);
@@ -1002,40 +1002,37 @@ rfx_dwt_2d_encode_block_horiz_16_64_no_lo(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
         movdqa(&context->xmm2, context->xmm5);                   // save hi
     
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
-        store_dword(context->rax, context->xmm7);
+        store_dword(context->rax.eax, context->xmm7);
         pslldq(context->xmm7, 2);
-        
-        context->rax = context->rax & 0xFFFF;
-        
-        load_dword(context->xmm6, context->rax);
+        context->rax.eax = context->rax.eax & 0xFFFF;
+        load_dword(context->xmm6, context->rax.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
         paddw(context->xmm5, context->xmm1);
     
         psrldq(context->xmm2, 14);
-        store_dword(context->rbx, context->xmm2);           // save hi
+        store_dword(context->rbx.eax, context->xmm2);           // save hi
     
-        movdqa((void *) out_lo_buffer, context->xmm5);      // out lo
+        movdqa(out_lo_buffer, context->xmm5);      // out lo
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // loop
-        // FIXME: 잠깐, 넌 ecx랑 rcx를 착각하고 있어
         cx = 2;
         
         // loop2e1
         while (cx != 0) {
-            load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-            load_dqword(context->xmm2, (void *) in_buffer + 16);
+            load_dqword(context->xmm1, in_buffer);                  // src[2n]
+            load_dqword(context->xmm2, in_buffer + 16);
             movdqa(&context->xmm6, context->xmm1);
             movdqa(&context->xmm7, context->xmm2);
             pand(context->xmm1,cdFFFF);
@@ -1052,16 +1049,12 @@ rfx_dwt_2d_encode_block_horiz_16_64_no_lo(struct cpu_context *context,
             movdqa(&context->xmm4, context->xmm7);
             psrldq(context->xmm3, 4);
             psrldq(context->xmm4, 4);
-            
-            store_dword(context->rax, context->xmm7);
-            load_dword(context->xmm5, context->rax);
-            
+            store_dword(context->rax.eax, context->xmm7);
+            load_dword(context->xmm5, context->rax.eax);
             pslldq(context->xmm5, 12);
             por(context->xmm3, context->xmm5);
-            
-            context->rax = *((int32_t *) in_buffer + 32);
-            load_dword(context->xmm5, context->rax);
-            
+            context->rax.eax = *((int32_t *) (in_buffer + 32));
+            load_dword(context->xmm5, context->rax.eax);
             pslldq(context->xmm5, 12);
             por(context->xmm4, context->xmm5);
             pand(context->xmm3,cdFFFF);
@@ -1079,35 +1072,34 @@ rfx_dwt_2d_encode_block_horiz_16_64_no_lo(struct cpu_context *context,
             movdqa(&context->xmm6, context->xmm5);                   // out hi
             paddw(context->xmm6, context->xmm8);
             psraw_vec(context->xmm6, context->xmm9);
-            movdqa((void *) out_hi_buffer, context->xmm6);
+            movdqa(out_hi_buffer, context->xmm6);
             movdqa(&context->xmm2, context->xmm5);                   // save hi
     
             // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
             movdqa(&context->xmm7, context->xmm5);
             pslldq(context->xmm7, 2);
-            
-            load_dword(context->xmm6, context->rbx);
-            
+            load_dword(context->xmm6, context->rbx.eax);
             por(context->xmm7, context->xmm6);
             paddw(context->xmm5, context->xmm7);
             psraw(context->xmm5, 1);
             paddw(context->xmm5, context->xmm1);
     
             psrldq(context->xmm2, 14);
-            store_dword(context->rbx, context->xmm2);   // save hi
-            movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+            store_dword(context->rbx.eax, context->xmm2);   // save hi
+                                                        //
+            movdqa(out_lo_buffer, context->xmm5);                  // out lo
     
             // move right
-            in_buffer = (void *) in_buffer + 16 * 2;
-            out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-            out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+            in_buffer = in_buffer + 16 * 2;
+            out_hi_buffer = out_hi_buffer + 8 * 2;
+            out_lo_buffer = out_lo_buffer + 8 * 2;
     
             cx--;
         }
     
         // post
-        load_dqword(context->xmm1, (void *) in_buffer);                  // src[2n]
-        load_dqword(context->xmm2, (void *) in_buffer + 16);
+        load_dqword(context->xmm1, in_buffer);                  // src[2n]
+        load_dqword(context->xmm2, in_buffer + 16);
         movdqa(&context->xmm6, context->xmm1);
         movdqa(&context->xmm7, context->xmm2);
         pand(context->xmm1,cdFFFF);
@@ -1124,10 +1116,8 @@ rfx_dwt_2d_encode_block_horiz_16_64_no_lo(struct cpu_context *context,
         movdqa(&context->xmm4, context->xmm7);
         psrldq(context->xmm3, 4);
         psrldq(context->xmm4, 4);
-        
-        store_dword(context->rax, context->xmm7);
-        load_dword(context->xmm5, context->rax);
-        
+        store_dword(context->rax.eax, context->xmm7);
+        load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
         movdqa(&context->xmm5, context->xmm7);
@@ -1149,61 +1139,56 @@ rfx_dwt_2d_encode_block_horiz_16_64_no_lo(struct cpu_context *context,
         movdqa(&context->xmm6, context->xmm5);                   // out hi
         paddw(context->xmm6, context->xmm8);
         psraw_vec(context->xmm6, context->xmm9);
-        movdqa((void *) out_hi_buffer, context->xmm6);
+        movdqa(out_hi_buffer, context->xmm6);
     
         // l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
         movdqa(&context->xmm7, context->xmm5);
         pslldq(context->xmm7, 2);
-        
-        load_dword(context->xmm6, context->rbx);
-        
+        load_dword(context->xmm6, context->rbx.eax);
         por(context->xmm7, context->xmm6);
         paddw(context->xmm5, context->xmm7);
         psraw(context->xmm5, 1);
         paddw(context->xmm5, context->xmm1);
     
-        movdqa((void *) out_lo_buffer, context->xmm5);                  // out lo
+        movdqa(out_lo_buffer, context->xmm5);                  // out lo
     
         // move right
-        in_buffer = (void *) in_buffer + 16 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 8 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 8 * 2;
+        in_buffer = in_buffer + 16 * 2;
+        out_hi_buffer = out_hi_buffer + 8 * 2;
+        out_lo_buffer = out_lo_buffer + 8 * 2;
     
         // move left
-        in_buffer = (void *) in_buffer - (64 * 2);
-        out_hi_buffer = (void *) out_hi_buffer - (32 * 2);
-        out_lo_buffer = (void *) out_lo_buffer - (32 * 2);
+        in_buffer = in_buffer - (64 * 2);
+        out_hi_buffer = out_hi_buffer - (32 * 2);
+        out_lo_buffer = out_lo_buffer - (32 * 2);
     
         // move down
-        in_buffer = (void *) in_buffer + 64 * 2;
-        out_hi_buffer = (void *) out_hi_buffer + 32 * 2;
-        out_lo_buffer = (void *) out_lo_buffer + 32 * 2;
+        in_buffer = in_buffer + 64 * 2;
+        out_hi_buffer = out_hi_buffer + 32 * 2;
+        out_lo_buffer = out_lo_buffer + 32 * 2;
     
         ecx--;
     }
 }
 
 /**
- * https://justdoprogram.blogspot.com/2021/10/sign-extension-zero-extension.html
- *
  * source 8 bit unsigned, 64 pixel width
  */
 void
 rfx_dwt_2d_encode_block_verti_8_64(struct cpu_context *context,
-                                   const unsigned char *in_buffer, // rsi
-                                   short *out_hi_buffer,  // rdi
-                                   short *out_lo_buffer)  // rdx
+                                   const uint8_t *in_buffer, // rsi
+                                   uint8_t *out_hi_buffer,  // rdi
+                                   uint8_t *out_lo_buffer)  // rdx
 {
     int16_t cx = 0;
     int32_t ecx = 8;
     
-    
     // loop1f
     while (ecx != 0) {
         // pre
-        movq(context->xmm1, (void *) in_buffer);                    // src[2n]
-        movq(context->xmm2, (void *) in_buffer + 64 * 1);           // src[2n + 1]
-        movq(context->xmm3, (void *) in_buffer + 64 * 1 * 2);       // src[2n + 2]
+        movq(context->xmm1, *((uint64_t *) in_buffer));                    // src[2n]
+        movq(context->xmm2, *((uint64_t *) (in_buffer + 64 * 1)));           // src[2n + 1]
+        movq(context->xmm3, *((uint64_t *) (in_buffer + 64 * 1 * 2)));       // src[2n + 2]
         punpcklbw(context->xmm1, context->xmm0);
         punpcklbw(context->xmm2, context->xmm0);
         punpcklbw(context->xmm3, context->xmm0);
@@ -1241,8 +1226,8 @@ rfx_dwt_2d_encode_block_verti_8_64(struct cpu_context *context,
         // loop2f
         while (cx != 0) {
             movdqa(&context->xmm1, context->xmm3);                  // src[2n]
-            movq(context->xmm2, (void *) in_buffer + 64 * 1);       // src[2n + 1]
-            movq(context->xmm3, (void *) in_buffer + 64 * 1 * 2);   // src[2n + 2]
+            movq(context->xmm2, *((uint64_t *) (in_buffer + 64 * 1)));       // src[2n + 1]
+            movq(context->xmm3, *((uint64_t *) (in_buffer + 64 * 1 * 2)));   // src[2n + 2]
             punpcklbw(context->xmm2, context->xmm0);
             punpcklbw(context->xmm3, context->xmm0);
             psubw(context->xmm2, cw128);
@@ -1278,7 +1263,7 @@ rfx_dwt_2d_encode_block_verti_8_64(struct cpu_context *context,
     
         // post
         movdqa(&context->xmm1, context->xmm3);// src[2n]
-        movq(context->xmm2, (void *) in_buffer + 64 * 1);// src[2n + 1]
+        movq(context->xmm2, *((uint64_t *) (in_buffer + 64 * 1)));// src[2n + 1]
         punpcklbw(context->xmm2, context->xmm0);
         psubw(context->xmm2, cw128);
         psllw(context->xmm2, 5);
@@ -1305,9 +1290,9 @@ rfx_dwt_2d_encode_block_verti_8_64(struct cpu_context *context,
         out_lo_buffer = out_lo_buffer + 64 * 2;     // 1 row
         
         // move up
-        in_buffer = in_buffer - (64 * 1 * 64);
-        out_hi_buffer = out_hi_buffer - (32 * 64 * 2);
-        out_lo_buffer = out_lo_buffer - (32 * 64 * 2);
+        in_buffer = in_buffer - 64 * 1 * 64;
+        out_hi_buffer = out_hi_buffer - 32 * 64 * 2;
+        out_lo_buffer = out_lo_buffer - 32 * 64 * 2;
     
         // move right
         in_buffer = in_buffer + 8;
@@ -1318,44 +1303,40 @@ rfx_dwt_2d_encode_block_verti_8_64(struct cpu_context *context,
     }
 }
 
-// FIXME: 이거 qtable loopup해서 RODATA[qtable[x]] 하는 것 같은데 지금 구조에서 이거 불가능함
-//        원래 동작을 따라할 수 있도록 해야 함
 void set_quants_hi(struct cpu_context *context) {
-    // sub(rax, 6 - 5)
-    context->rax = context->rax - 6;
-    load_dword_dup(context->xmm9, context->rax);
-    
-    context->rax = context->rax * 16;
+    context->rax.rax = context->rax.rax - (6 - 5);
+    load_dword_dup(context->xmm9, context->rax.ax);
+
+    context->rax.rax = context->rax.rax * 16;
     context->rdx = (void *) &RODATA;
-    context->rdx = context->rdx + context->rax;
+    context->rdx = context->rdx + context->rax.eax;
     
-    // movdqa(xmm8, (void *) out_lo_buffer)
     load_dqword(context->xmm8, (void *) context->rdx);
-    // context->xmm8 = vld1q_s16((void *) context->rdx);
 }
 
 void set_quants_lo(struct cpu_context *context) {
-    // sub(rax, 6 - 5)
-    context->rax = context->rax - 6;
-    load_dword_dup(context->xmm11, context->rax);
-    // context->xmm11 = vmovq_n_s16((int16_t) context->rax);
-    
-    context->rax = context->rax * 16;
+    context->rax.rax = context->rax.rax - (6 - 5);
+    load_dword_dup(context->xmm11, context->rax.ax);
+     
+    context->rax.rax = context->rax.rax * 16;
     context->rdx = (void *) &RODATA;
-    context->rdx = context->rdx + context->rax;
+    context->rdx = context->rdx + context->rax.rax;
     
-    // movdqa(xmm8, (void *) out_lo_buffer)
-    // context->xmm10 = vld1q_s16((void *) context->rdx);
     load_dqword(context->xmm10, (void *) context->rdx);
 }
 
 int
 rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
-                                       const unsigned char *in_buffer,
-                                       short *work_buffer,
-                                       short *out_buffer)
+                                       const uint8_t *in_buffer,
+                                       short *_work_buffer,
+                                       short *_out_buffer)
 {
     struct cpu_context context = { 0 };
+
+    // FIXME
+    uint8_t *work_buffer = (uint8_t *) _work_buffer;
+    uint8_t *out_buffer = (uint8_t *) _out_buffer;
+
     
     // vertical DWT to work(buffer, level 1)
     rfx_dwt_2d_encode_block_verti_8_64(
@@ -1364,6 +1345,7 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
         work_buffer + 64 * 32 * 2,  // dst hi
         work_buffer                 // dst lo
     );
+    printf("rfx_dwt_2d_encode_block_verti_8_64 end\n");
     
     // horizontal DWT to out buffer, level 1, part 1
     
@@ -1371,7 +1353,8 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
     // mov(rdx, [rsp])
     // mov(al, [rdx + 4])
     // and(al, 0xF)
-    context.rax = (uint32_t) qtable[4] & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = (uint8_t) qtable[4] & 0xF;
     set_quants_hi(&context);
     
     rfx_dwt_2d_encode_block_horiz_16_64_no_lo(
@@ -1380,12 +1363,15 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
         out_buffer,                 // dst hi - HL1
         out_buffer + 32 * 32 * 6    // dst lo - LL1
     );
+    printf("rfx_dwt_2d_encode_block_horiz_16_64_no_lo end\n");
     
     // horizontal DWT to out buffer, level 1, part 2
-    context.rax = (uint32_t) (qtable[4] >> 4) & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[4]) >> 4;
     set_quants_hi(&context);
-    
-    context.rax = (uint32_t) (qtable[3] >> 4) & 0xF;
+
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[3]) >> 4;
     set_quants_lo(&context);
     
     
@@ -1405,7 +1391,8 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
     );
     
     // horizontal DWT to out buffer, level 2, part 1
-    context.rax = (uint32_t) (qtable[2] >> 4) & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[2]) >> 4;
     set_quants_hi(&context);
     
     rfx_dwt_2d_encode_block_horiz_16_32_no_lo(
@@ -1418,10 +1405,12 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
     );
     
     // horizontal DWT to out buffer, level 2, part 2
-    context.rax = (uint32_t) qtable[3] & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[3]) & 0xF;
     set_quants_hi(&context);
     
-    context.rax = (uint32_t) qtable[2] & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[2]) & 0xF;
     set_quants_lo(&context);
     
     rfx_dwt_2d_encode_block_horiz_16_32(
@@ -1443,10 +1432,12 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
     );
     
     // horizontal DWT to out buffer, level 3, part 1
-    context.rax = (uint32_t) qtable[1] & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[1]) & 0xF;
     set_quants_hi(&context);
     
-    context.rax = (uint32_t) qtable[0] & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[0]) & 0xF;
     set_quants_lo(&context);
     
     rfx_dwt_2d_encode_block_horiz_16_16(
@@ -1459,10 +1450,12 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
     );
     
     // horizontal DWT to out buffer, level 3, part 2
-    context.rax = (uint32_t) (qtable[1] >> 4) & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[1]) >> 4;
     set_quants_hi(&context);
     
-    context.rax = (uint32_t) (qtable[0] >> 4) & 0xF;
+    context.rax.rax = 0;
+    context.rax.al = ((uint8_t) qtable[0]) >> 4;
     set_quants_lo(&context);
     
     rfx_dwt_2d_encode_block_horiz_16_16(
@@ -1489,7 +1482,8 @@ rfx_encode_component_rlgr1_arm64_neon(struct rfxencode *enc, const char *qtable,
     {
         return 1;
     }
-    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer1, buffer, buffer_size, 64);
+    // FIXME: if i pass enc->dwt_buffer1 instead of enc->dwt_buffer, the test fails
+    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer, buffer, buffer_size, 64);
     return 0;
 }
 
@@ -1505,6 +1499,7 @@ rfx_encode_component_rlgr3_arm64_neon(struct rfxencode *enc, const char *qtable,
     {
         return 1;
     }
-    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer1, buffer, buffer_size, 64);
+    // FIXME: if i pass enc->dwt_buffer1 instead of enc->dwt_buffer, the test fails
+    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer, buffer, buffer_size, 64);
     return 0;
 }
