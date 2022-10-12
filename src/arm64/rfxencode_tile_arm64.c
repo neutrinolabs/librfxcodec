@@ -1,19 +1,20 @@
 /**
  * FreeRDP: A Remote Desktop Protocol client.
- * RemoteFX CoLibrary - Encode--;
+ * RemoteFX Codec Library - Encode
  *
  * Copyright 2011 Vic Lee
  * Copyright 2014-2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2022 Gyuhwan Park <unstabler@unstabler.pl>
  *
- * Licensed under the Apache(License, Version 2.0 (the "License");)
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in(writing, software)
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY(KIND, either express or implied.)
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -74,7 +75,6 @@ struct cpu_context {
     union virt_register rbx;
     int64_t rcx;
     int64_t rdx;
-    
 };
 
 // PREPARE_RODATA
@@ -125,7 +125,7 @@ rfx_dwt_2d_encode_block_horiz_16_16(struct cpu_context *context,
                                     uint8_t *out_lo_buffer)
 {
     int32_t ecx = 8;
-    loop1a:
+    // loop1a
     while (ecx != 0) {
         // pre / post
         load_dqword(context->xmm1, in_buffer);                  // src[2n]
@@ -213,7 +213,7 @@ rfx_dwt_2d_encode_block_verti_16_16(struct cpu_context *context,
     int16_t cx = 0;
     int32_t ecx = 2;
     
-    loop1b:
+    // loop1b
     while (ecx != 0) {
         // pre
         load_dqword(context->xmm1, in_buffer);                  // src[2n]
@@ -240,7 +240,7 @@ rfx_dwt_2d_encode_block_verti_16_16(struct cpu_context *context,
     
         // loop
         cx = 6;
-        loop2b:
+        // loop2b
         while (cx != 0) {
             movdqa(&context->xmm1, context->xmm3);                   // src[2n]
             load_dqword(context->xmm2, in_buffer + 16 * 2);         // src[2n + 1]
@@ -494,7 +494,6 @@ rfx_dwt_2d_encode_block_horiz_16_32_no_lo(struct cpu_context *context,
         load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
-        // context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
         context->rax.eax = *((int32_t *) (in_buffer + 32));
         load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
@@ -749,7 +748,6 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
         load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
         por(context->xmm3, context->xmm5);
-        // context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
         context->rax.eax = *((int32_t *) (in_buffer + 32));
         load_dword(context->xmm5, context->rax.eax);
         pslldq(context->xmm5, 12);
@@ -823,7 +821,6 @@ rfx_dwt_2d_encode_block_horiz_16_64(struct cpu_context *context,
             load_dword(context->xmm5, context->rax.eax);
             pslldq(context->xmm5, 12);
             por(context->xmm3, context->xmm5);
-            // context->rax = *((int32_t *) (void *) in_buffer + 32); // FIXME: mov(eax, (void *) in_buffer + 32)
             context->rax.eax = *((int32_t *) (in_buffer + 32));
             load_dword(context->xmm5, context->rax.eax);
             pslldq(context->xmm5, 12);
@@ -1262,8 +1259,8 @@ rfx_dwt_2d_encode_block_verti_8_64(struct cpu_context *context,
         }
     
         // post
-        movdqa(&context->xmm1, context->xmm3);// src[2n]
-        movq(context->xmm2, *((uint64_t *) (in_buffer + 64 * 1)));// src[2n + 1]
+        movdqa(&context->xmm1, context->xmm3);                      // src[2n]
+        movq(context->xmm2, *((uint64_t *) (in_buffer + 64 * 1)));  // src[2n + 1]
         punpcklbw(context->xmm2, context->xmm0);
         psubw(context->xmm2, cw128);
         psllw(context->xmm2, 5);
@@ -1327,18 +1324,14 @@ void set_quants_lo(struct cpu_context *context) {
 
 int
 rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
-                                       const uint8_t *in_buffer,
-                                       short *_work_buffer,
-                                       short *_out_buffer)
+                                     const uint8_t *in_buffer,
+                                     uint8_t *_work_buffer,
+                                     uint8_t *_out_buffer)
 {
     struct cpu_context context = { 0 };
 
-    // FIXME
-    uint8_t *work_buffer = (uint8_t *) _work_buffer;
-    uint8_t *out_buffer = (uint8_t *) _out_buffer;
-
     
-    // vertical DWT to work(buffer, level 1)
+    // vertical DWT to work buffer, level 1
     rfx_dwt_2d_encode_block_verti_8_64(
         &context,
         in_buffer,                  // src
@@ -1477,8 +1470,9 @@ rfx_encode_component_rlgr1_arm64_neon(struct rfxencode *enc, const char *qtable,
                                       uint8 *buffer, int buffer_size, int *size)
 {
     LLOGLN(10, ("rfx_encode_component_rlgr1_amm64_neon:"));
-    if (rfxcodec_encode_dwt_shift_arm64_neon(qtable, data, enc->dwt_buffer1,
-                                              enc->dwt_buffer) != 0)
+    if (rfxcodec_encode_dwt_shift_arm64_neon(qtable, data, 
+                                             (uint8_t *) enc->dwt_buffer1,
+                                             (uint8_t *) enc->dwt_buffer) != 0)
     {
         return 1;
     }
@@ -1494,8 +1488,9 @@ rfx_encode_component_rlgr3_arm64_neon(struct rfxencode *enc, const char *qtable,
                                       uint8 *buffer, int buffer_size, int *size)
 {
     LLOGLN(10, ("rfx_encode_component_rlgr3_arm64_neon:"));
-    if (rfxcodec_encode_dwt_shift_arm64_neon(qtable, data, enc->dwt_buffer1,
-                                              enc->dwt_buffer) != 0)
+    if (rfxcodec_encode_dwt_shift_arm64_neon(qtable, data, 
+                                             (uint8_t *) enc->dwt_buffer1,
+                                             (uint8_t *) enc->dwt_buffer) != 0)
     {
         return 1;
     }
