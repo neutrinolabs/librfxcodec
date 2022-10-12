@@ -1302,7 +1302,7 @@ rfx_dwt_2d_encode_block_verti_8_64(struct cpu_context *context,
 
 void set_quants_hi(struct cpu_context *context) {
     context->rax.rax = context->rax.rax - (6 - 5);
-    load_dword_dup(context->xmm9, context->rax.ax);
+    load_word_dup(context->xmm9, context->rax.ax);
 
     context->rax.rax = context->rax.rax * 16;
     context->rdx = (void *) &RODATA;
@@ -1313,7 +1313,7 @@ void set_quants_hi(struct cpu_context *context) {
 
 void set_quants_lo(struct cpu_context *context) {
     context->rax.rax = context->rax.rax - (6 - 5);
-    load_dword_dup(context->xmm11, context->rax.ax);
+    load_word_dup(context->xmm11, context->rax.ax);
      
     context->rax.rax = context->rax.rax * 16;
     context->rdx = (void *) &RODATA;

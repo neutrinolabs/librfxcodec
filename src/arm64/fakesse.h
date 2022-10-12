@@ -13,9 +13,9 @@
  *      int16_t value = 123;
  *      
  *      // xmm1 -> int16x8_t {123, 123, 123, 123, 123, 123, 123, 123}
- *      load_dword_dup(cpu_context.xmm1, value); 
+ *      load_word_dup(cpu_context.xmm1, value); 
  */
-#define load_dword_dup(dst, src) dst = vld1q_dup_s16(&src)
+#define load_word_dup(dst, src) dst = vld1q_dup_s16(&src)
 
 //
 /**
