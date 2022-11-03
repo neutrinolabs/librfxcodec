@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script
 
-AC_PREREQ(2.59)
+AC_PREREQ(2.69)
 AC_INIT([rfxcodec], [0.1.6], [xrdp-devel@googlegroups.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.6 foreign])
@@ -8,7 +8,7 @@ AC_CONFIG_MACRO_DIR([m4])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_PROG_CC
 AC_C_CONST
-AC_PROG_LIBTOOL
+LT_INIT
 PKG_INSTALLDIR
 
 AX_CFLAGS_WARN_ALL
@@ -16,7 +16,7 @@ AX_APPEND_COMPILE_FLAGS([-Wwrite-strings])
 
 # SIMD is optional
 AC_ARG_WITH([simd],
-    AC_HELP_STRING([--without-simd],[Omit SIMD extensions.]))
+    AS_HELP_STRING([--without-simd],[Omit SIMD extensions.]))
 if test "x${with_simd}" != "xno"; then
   # Check if we're on a supported CPU
   AC_MSG_CHECKING([if we have SIMD optimisations for cpu type])
