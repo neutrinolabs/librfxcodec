@@ -51,7 +51,7 @@ AM_CONDITIONAL(WITH_SIMD_ARM64, [test x$simd_arch = xarm64])
 
 # parent project will propagate these options to us when building
 AC_ARG_ENABLE(devel_all, AS_HELP_STRING([--enable-devel-all]),
-              [devel_all=$enableval], [devel_all=yes])
+              [devel_all=$enableval], [devel_all=no])
 AC_ARG_ENABLE(devel_debug, AS_HELP_STRING([--enable-devel-debug],
               [Build library with support for getting better backtraces [default=no]]),
               [devel_debug=$enableval], [devel_debug=$devel_all])

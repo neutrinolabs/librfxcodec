@@ -54,7 +54,7 @@
 #include "arm64/funcs_arm64.h"
 #endif
 
-#define LLOG_LEVEL 5
+#define LLOG_LEVEL 1
 #define LLOGLN(_level, _args) \
     do { if (_level < LLOG_LEVEL) { printf _args ; printf("\n"); } } while (0)
 
