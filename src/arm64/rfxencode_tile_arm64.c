@@ -1305,7 +1305,7 @@ void set_quants_hi(struct cpu_context *context) {
     load_word_dup(context->xmm9, context->rax.ax);
 
     context->rax.rax = context->rax.rax * 16;
-    context->rdx = (void *) &RODATA;
+    context->rdx = (int64_t) (void *) &RODATA;
     context->rdx = context->rdx + context->rax.eax;
     
     load_dqword(context->xmm8, (void *) context->rdx);
@@ -1316,7 +1316,7 @@ void set_quants_lo(struct cpu_context *context) {
     load_word_dup(context->xmm11, context->rax.ax);
      
     context->rax.rax = context->rax.rax * 16;
-    context->rdx = (void *) &RODATA;
+    context->rdx = (int64_t) (void *) &RODATA;
     context->rdx = context->rdx + context->rax.rax;
     
     load_dqword(context->xmm10, (void *) context->rdx);
@@ -1325,12 +1325,14 @@ void set_quants_lo(struct cpu_context *context) {
 int
 rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
                                      const uint8_t *in_buffer,
-                                     uint8_t *_work_buffer,
-                                     uint8_t *_out_buffer)
+                                     short *_work_buffer,
+                                     short *_out_buffer)
 {
     struct cpu_context context = { 0 };
 
-    
+    uint8_t *work_buffer = (uint8_t *) _work_buffer;
+    uint8_t *out_buffer  = (uint8_t *) _out_buffer;
+
     // vertical DWT to work buffer, level 1
     rfx_dwt_2d_encode_block_verti_8_64(
         &context,
@@ -1338,8 +1340,7 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
         work_buffer + 64 * 32 * 2,  // dst hi
         work_buffer                 // dst lo
     );
-    printf("rfx_dwt_2d_encode_block_verti_8_64 end\n");
-    
+
     // horizontal DWT to out buffer, level 1, part 1
     
     // xor(rax, rax)
@@ -1356,8 +1357,7 @@ rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,
         out_buffer,                 // dst hi - HL1
         out_buffer + 32 * 32 * 6    // dst lo - LL1
     );
-    printf("rfx_dwt_2d_encode_block_horiz_16_64_no_lo end\n");
-    
+
     // horizontal DWT to out buffer, level 1, part 2
     context.rax.rax = 0;
     context.rax.al = ((uint8_t) qtable[4]) >> 4;
@@ -1471,13 +1471,13 @@ rfx_encode_component_rlgr1_arm64_neon(struct rfxencode *enc, const char *qtable,
 {
     LLOGLN(10, ("rfx_encode_component_rlgr1_amm64_neon:"));
     if (rfxcodec_encode_dwt_shift_arm64_neon(qtable, data, 
-                                             (uint8_t *) enc->dwt_buffer1,
-                                             (uint8_t *) enc->dwt_buffer) != 0)
+                                             enc->dwt_buffer,
+                                             enc->dwt_buffer1) != 0)
     {
         return 1;
     }
     // FIXME: if i pass enc->dwt_buffer1 instead of enc->dwt_buffer, the test fails
-    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer, buffer, buffer_size, 64);
+    *size = rfx_encode_diff_rlgr1(enc->dwt_buffer1, buffer, buffer_size, 64);
     return 0;
 }
 
@@ -1489,12 +1489,12 @@ rfx_encode_component_rlgr3_arm64_neon(struct rfxencode *enc, const char *qtable,
 {
     LLOGLN(10, ("rfx_encode_component_rlgr3_arm64_neon:"));
     if (rfxcodec_encode_dwt_shift_arm64_neon(qtable, data, 
-                                             (uint8_t *) enc->dwt_buffer1,
-                                             (uint8_t *) enc->dwt_buffer) != 0)
+                                             enc->dwt_buffer,
+                                             enc->dwt_buffer1) != 0)
     {
         return 1;
     }
     // FIXME: if i pass enc->dwt_buffer1 instead of enc->dwt_buffer, the test fails
-    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer, buffer, buffer_size, 64);
+    *size = rfx_encode_diff_rlgr3(enc->dwt_buffer1, buffer, buffer_size, 64);
     return 0;
 }
