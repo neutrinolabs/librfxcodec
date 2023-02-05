@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 int
-cpuid_amd64(int eax_in, int ecx_in, int *eax, int *ebx, int *ecx, int *edx);
+arm64_is_neon_supported();
 
 int
 rfxcodec_encode_dwt_shift_arm64_neon(const char *qtable,

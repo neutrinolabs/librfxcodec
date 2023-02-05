@@ -20,7 +20,7 @@ endif
 if WITH_SIMD_ARM64
 SUBDIRS += arm64
 librfxencode_la_LIBADD = arm64/librfxencode-arm64.la
-AM_CPPFLAGS += -DSIMD_USE_ACCEL=1 -mfpu=neon -O0
+AM_CPPFLAGS += -DSIMD_USE_ACCEL=1 -O0
 endif
 
 noinst_HEADERS = \

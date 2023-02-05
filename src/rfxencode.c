@@ -134,8 +134,10 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     }
 
 #ifdef RFX_USE_ACCEL_ARM64
-    // FIXME;
-    enc->got_neon = 1;
+    if (arm64_is_neon_supported())
+    {
+        enc->got_neon = 1;
+    }
 #endif
 
     enc->width = width;

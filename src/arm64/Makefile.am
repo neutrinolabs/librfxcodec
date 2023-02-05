@@ -8,4 +8,6 @@ noinst_LTLIBRARIES = librfxencode-arm64.la
 
 librfxencode_arm64_la_SOURCES = \
   funcs_arm64.h \
+  arm64_is_neon_supported.c \
   rfxencode_tile_arm64.c
+
