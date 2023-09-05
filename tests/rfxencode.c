@@ -170,7 +170,7 @@ int process(void)
     char *out_data;
     char *bmp_data;
     int out_fd;
-    int out_bytes;
+    int out_bytes = 0;
     int error;
     int index;
     int index_x;
