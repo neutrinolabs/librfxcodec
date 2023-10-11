@@ -29,7 +29,7 @@
 
 #include "rfxcommon.h"
 #include "rfxencode.h"
-#include "rfxconstants.h"
+#include "ms-rdprfx.h"
 
 /******************************************************************************/
 int

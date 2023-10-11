@@ -30,7 +30,7 @@
 
 #include "rfxcommon.h"
 #include "rfxencode.h"
-#include "rfxconstants.h"
+#include "ms-rdprfx.h"
 #include "rfxencode_tile.h"
 #include "rfxencode_dwt.h"
 #include "rfxencode_dwt_rem.h"

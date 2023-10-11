@@ -29,7 +29,7 @@
 
 #include "rfxcommon.h"
 #include "rfxencode.h"
-#include "rfxconstants.h"
+#include "ms-rdprfx.h"
 #include "rfxencode_tile.h"
 
 #define LLOG_LEVEL 1

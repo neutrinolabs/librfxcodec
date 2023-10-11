@@ -29,7 +29,7 @@
 #include "rfxcommon.h"
 #include "rfxencode.h"
 #include "rfxencode_compose.h"
-#include "rfxconstants.h"
+#include "ms-rdprfx.h"
 #include "rfxencode_tile.h"
 #include "rfxencode_rlgr1.h"
 #include "rfxencode_rlgr3.h"
