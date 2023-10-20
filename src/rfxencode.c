@@ -29,7 +29,7 @@
 #include "rfxcommon.h"
 #include "rfxencode.h"
 #include "rfxencode_compose.h"
-#include "rfxconstants.h"
+#include "ms-rdprfx.h"
 #include "rfxencode_tile.h"
 #include "rfxencode_rlgr1.h"
 #include "rfxencode_rlgr3.h"
@@ -51,7 +51,7 @@
 /******************************************************************************/
 int
 rfxcodec_encode_create_ex(int width, int height, int format, int flags,
-                          void **handle)
+                          void **handle, int codec_mode)
 {
     struct rfxencode *enc;
     int ax;
@@ -64,6 +64,8 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     {
         return 1;
     }
+
+    enc->flags = (codec_mode == CODEC_MODE_IMAGE) ? CODEC_MODE_IMAGE : CODEC_MODE_VIDEO;
 
     enc->dwt_buffer = (sint16 *) (((size_t) (enc->dwt_buffer_a)) & ~15);
     enc->dwt_buffer1 = (sint16 *) (((size_t) (enc->dwt_buffer1_a)) & ~15);
@@ -285,12 +287,12 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
 
 /******************************************************************************/
 void *
-rfxcodec_encode_create(int width, int height, int format, int flags)
+rfxcodec_encode_create(int width, int height, int format, int flags, int codec_mode)
 {
     int error;
     void *handle;
 
-    error = rfxcodec_encode_create_ex(width, height, format, flags, &handle);
+    error = rfxcodec_encode_create_ex(width, height, format, flags, &handle, codec_mode);
     if (error == 0)
     {
         return handle;
@@ -363,7 +365,8 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
     }
 
     /* Only the first frame should send the RemoteFX header */
-    if ((enc->frame_idx == 0) && (enc->header_processed == 0))
+    if (enc->flags == CODEC_MODE_IMAGE ||
+        ((enc->frame_idx == 0) && (enc->header_processed == 0)))
     {
         if (rfx_compose_message_header(enc, &s) != 0)
         {

@@ -65,6 +65,8 @@ enum _RLGR_MODE
 
 /* properties.flags */
 #define CODEC_MODE              0x02
+#define CODEC_MODE_IMAGE        CODEC_MODE
+#define CODEC_MODE_VIDEO        0x00
 
 /* properties.cct */
 #define COL_CONV_ICT            0x1

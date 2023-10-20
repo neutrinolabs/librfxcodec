@@ -21,7 +21,6 @@ noinst_HEADERS = \
   rfx_bitstream.h \
   rfxcommon.h \
   rfxencode_compose.h \
-  rfxconstants.h \
   rfxencode_alpha.h \
   rfxencode_differential.h \
   rfxencode_dwt.h \
