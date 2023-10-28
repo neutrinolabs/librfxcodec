@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "rfx_bitstream.h"
+#include "rfxencode_rlgr1.h"
 
 /* Constants used within the RLGR1/RLGR3 algorithm */
 #define KPMAX   (80)  /* max value for kp or krp */

@@ -33,6 +33,7 @@
 #include "rfxcommon.h"
 #include "rfxencode.h"
 #include "rfxconstants.h"
+#include "rfxencode_quantization.h"
 
 #if 0
 /******************************************************************************/

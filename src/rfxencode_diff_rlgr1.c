@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include "rfxcommon.h"
+#include "rfxencode_diff_rlgr1.h"
 
 #define PIXELS_IN_TILE 4096
 

@@ -34,6 +34,7 @@
 #include "rfxencode_alpha.h"
 #include "rfxencode_diff_rlgr1.h"
 #include "rfxencode_diff_rlgr3.h"
+#include "rfxencode_tile.h"
 
 #include "amd64/funcs_amd64.h"
 

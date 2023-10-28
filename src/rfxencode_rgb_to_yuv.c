@@ -38,6 +38,7 @@
 #include "rfxencode_rlgr1.h"
 #include "rfxencode_rlgr3.h"
 #include "rfxencode_alpha.h"
+#include "rfxencode_rgb_to_yuv.h"
 
 #define LLOG_LEVEL 1
 #define LLOGLN(_level, _args) \

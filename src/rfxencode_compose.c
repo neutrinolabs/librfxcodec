@@ -39,6 +39,7 @@
 #include "rfxencode_diff_rlgr1.h"
 #include "rfxencode_rlgr1.h"
 #include "rfxencode_differential.h"
+#include "rfxencode_compose.h"
 
 #define LLOG_LEVEL 1
 #define LLOGLN(_level, _args) \
