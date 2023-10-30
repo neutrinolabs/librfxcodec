@@ -30,6 +30,7 @@
 #include "rfxcommon.h"
 #include "rfxencode.h"
 #include "rfxconstants.h"
+#include "rfxencode_differential.h"
 
 /******************************************************************************/
 int

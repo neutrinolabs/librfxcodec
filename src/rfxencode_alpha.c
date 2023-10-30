@@ -31,6 +31,7 @@
 #include "rfxencode.h"
 #include "rfxconstants.h"
 #include "rfxencode_tile.h"
+#include "rfxencode_alpha.h"
 
 #define LLOG_LEVEL 1
 #define LLOGLN(_level, _args) \

@@ -13,6 +13,7 @@ PKG_INSTALLDIR
 
 AX_CFLAGS_WARN_ALL
 AX_APPEND_COMPILE_FLAGS([-Wwrite-strings])
+AX_APPEND_COMPILE_FLAGS([-Wmissing-prototypes], ,[-Werror])
 
 # SIMD is optional
 AC_ARG_WITH([simd],

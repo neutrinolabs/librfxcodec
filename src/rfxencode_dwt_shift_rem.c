@@ -29,6 +29,7 @@
 
 #include "rfxcommon.h"
 #include "rfxencode_dwt_rem.h"
+#include "rfxencode_dwt_shift_rem.h"
 
 #define ICL1(_offset) (ic[(_offset) * 64] - 128) << DWT_FACTOR
 #define ICL2(_offset) ic[(_offset) * 33]
