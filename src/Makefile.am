@@ -17,6 +17,12 @@ librfxencode_la_LIBADD = x86/librfxencode-x86.la
 AM_CPPFLAGS += -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_X86=1
 endif
 
+if WITH_SIMD_ARM64
+SUBDIRS += arm64
+librfxencode_la_LIBADD = arm64/librfxencode-arm64.la
+AM_CPPFLAGS += -DSIMD_USE_ACCEL=1 -O0
+endif
+
 noinst_HEADERS = \
   rfx_bitstream.h \
   rfxcommon.h \

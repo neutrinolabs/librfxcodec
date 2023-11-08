@@ -89,6 +89,8 @@ typedef int (*rfxencode_dwt_shift_x86_sse41_proc)(const char *qtable, const unsi
 typedef int (*rfxencode_dwt_shift_amd64_sse2_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);
 typedef int (*rfxencode_dwt_shift_amd64_sse41_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);
 
+typedef int (*rfxencode_dwt_shift_arm64_neon_proc)(const char *qtable, const unsigned char *data, short *dwt_buffer1, short *dwt_buffer);
+
 struct rfxcodec_encode_internals
 {
     rfxencode_rlgr1_proc rfxencode_rlgr1;
@@ -102,6 +104,7 @@ struct rfxcodec_encode_internals
     rfxencode_dwt_shift_x86_sse41_proc rfxencode_dwt_shift_x86_sse41;
     rfxencode_dwt_shift_amd64_sse2_proc rfxencode_dwt_shift_amd64_sse2;
     rfxencode_dwt_shift_amd64_sse41_proc rfxencode_dwt_shift_amd64_sse41;
+    rfxencode_dwt_shift_arm64_neon_proc rfxencode_dwt_shift_amd64_neon;
 };
 
 int
