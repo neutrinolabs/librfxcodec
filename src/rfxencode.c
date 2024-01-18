@@ -48,6 +48,44 @@
 #include "amd64/funcs_amd64.h"
 #endif
 
+int
+rfxencode_reset_encoder(void *handle)
+{
+    struct rfxencode *enc;
+    enc = (struct rfxencode *) handle;
+
+    enc->frame_idx = 0;
+    enc->header_processed = 0;
+
+    memset(enc->a_buffer, 0, sizeof(enc->a_buffer));
+    memset(enc->y_r_buffer, 0, sizeof(enc->y_r_buffer));
+    memset(enc->u_g_buffer, 0, sizeof(enc->u_g_buffer));
+    memset(enc->v_b_buffer, 0, sizeof(enc->v_b_buffer));
+
+    memset(enc->dwt_buffer_a, 0, sizeof(enc->dwt_buffer_a));
+    enc->dwt_buffer = (sint16 *) (((size_t) (enc->dwt_buffer_a)) & ~15);
+
+    memset(enc->dwt_buffer1_a, 0, sizeof(enc->dwt_buffer1_a));
+    enc->dwt_buffer1 = (sint16 *) (((size_t) (enc->dwt_buffer1_a)) & ~15);
+
+    memset(enc->dwt_buffer2_a, 0, sizeof(enc->dwt_buffer2_a));
+    enc->dwt_buffer2 = (sint16 *) (((size_t) (enc->dwt_buffer2_a)) & ~15);
+
+    memset(enc->dwt_buffer3_a, 0, sizeof(enc->dwt_buffer3_a));
+    enc->dwt_buffer3 = (sint16 *) (((size_t) (enc->dwt_buffer3_a)) & ~15);
+
+    memset(enc->dwt_buffer4_a, 0, sizeof(enc->dwt_buffer4_a));
+    enc->dwt_buffer4 = (sint16 *) (((size_t) (enc->dwt_buffer4_a)) & ~15);
+
+    memset(enc->dwt_buffer5_a, 0, sizeof(enc->dwt_buffer5_a));
+    enc->dwt_buffer5 = (sint16 *) (((size_t) (enc->dwt_buffer5_a)) & ~15);
+
+    memset(enc->dwt_buffer6_a, 0, sizeof(enc->dwt_buffer6_a));
+    enc->dwt_buffer6 = (sint16 *) (((size_t) (enc->dwt_buffer6_a)) & ~15);
+
+    return 0;
+}
+
 /******************************************************************************/
 int
 rfxcodec_encode_create_ex(int width, int height, int format, int flags,
