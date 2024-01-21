@@ -40,8 +40,6 @@ struct rfx_tile
     int quant_cr;
 };
 
-int
-rfxencode_reset_encoder(void *handle);
 void *
 rfxcodec_encode_create(int width, int height, int format, int flags);
 int

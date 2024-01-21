@@ -48,7 +48,22 @@
 #include "amd64/funcs_amd64.h"
 #endif
 
-int
+static void
+clear_encoder_rbs(struct rfxencode *enc)
+{
+    int index;
+    int jndex;
+    for (index = 0; index < RFX_MAX_RB_Y; ++index)
+    {
+        for (jndex = 0; jndex < RFX_MAX_RB_X; ++jndex)
+        {
+            free(enc->rbs[index][jndex]);
+            enc->rbs[index][jndex] = NULL;
+        }
+    }
+}
+
+static int
 rfxencode_reset_encoder(void *handle)
 {
     struct rfxencode *enc;
@@ -83,6 +98,7 @@ rfxencode_reset_encoder(void *handle)
     memset(enc->dwt_buffer6_a, 0, sizeof(enc->dwt_buffer6_a));
     enc->dwt_buffer6 = (sint16 *) (((size_t) (enc->dwt_buffer6_a)) & ~15);
 
+    clear_encoder_rbs(enc);
     return 0;
 }
 
@@ -341,21 +357,13 @@ int
 rfxcodec_encode_destroy(void *handle)
 {
     struct rfxencode *enc;
-    int index;
-    int jndex;
 
     enc = (struct rfxencode *) handle;
     if (enc == NULL)
     {
         return 0;
     }
-    for (index = 0; index < 64; index++)
-    {
-        for (jndex = 0; jndex < 64; jndex++)
-        {
-            free(enc->rbs[index][jndex]);
-        }
-    }
+    clear_encoder_rbs(enc);
     free(enc);
     return 0;
 }
@@ -380,6 +388,10 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
 
     if (enc->pro_ver > 0)
     {
+        if (flags & RFX_FLAGS_PRO_KEY)
+        {
+            rfxencode_reset_encoder(handle);
+        }
         /* Only the first frame should send the RemoteFX header */
         if ((enc->frame_idx == 0) && (enc->header_processed == 0))
         {
