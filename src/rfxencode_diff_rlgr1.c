@@ -70,20 +70,27 @@
     /* unary part of GR code */ \
     int lvk = _lmag >> lkr; \
     int llvk = lvk; \
-    while (llvk >= 8) \
+    if (llvk > 0) \
     { \
-        bits <<= 8; \
-        bits |= 0xFF; \
-        llvk -= 8; \
-        *cdata = bits >> bit_count; \
-        cdata++; \
+        if (cdata_size < llvk / 8) \
+        { \
+            return -1; \
+        } \
+        while (llvk >= 8) \
+        { \
+            cdata_size--; \
+            bits <<= 8; \
+            bits |= 0xFF; \
+            llvk -= 8; \
+            *cdata = bits >> bit_count; \
+            cdata++; \
+        } \
+        bits <<= llvk; \
+        bits |= (1 << llvk) - 1; \
+        bit_count += llvk; \
     } \
-    bits <<= llvk; \
-    bits |= (1 << llvk) - 1; \
-    bit_count += llvk; \
     bits <<= 1; \
     bit_count++; \
-    CheckWrite; \
     /* remainder part of GR code, if needed */ \
     if (lkr) \
     { \
@@ -262,7 +269,6 @@ rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size,
         bits <<= 8 - bit_count;
         *cdata = bits;
         cdata++;
-        bit_count = 0;
     }
 
     processed_size = cdata - cdata_org;
