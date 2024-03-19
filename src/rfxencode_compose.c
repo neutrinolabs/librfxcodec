@@ -717,6 +717,7 @@ do { \
 } while (0)
 
 /******************************************************************************/
+/* return tiles written or -1 on error */
 static int
 rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
                                const struct rfx_rect *regions, int num_regions,
@@ -768,7 +769,7 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
 
     if (stream_get_left(s) < 18 + num_regions * 8 + num_quants * 5)
     {
-        return 1;
+        return -1;
     }
     if (quants == NULL)
     {
@@ -783,7 +784,7 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
     stream_write_uint8(s, num_quants);
     stream_write_uint8(s, 0); /* numProgQuant */
     stream_write_uint8(s, RFX_DWT_REDUCE_EXTRAPOLATE); /* flags */
-    stream_write_uint16(s, num_tiles);
+    stream_seek_uint16(s); /* num_tiles, set later */
     stream_seek_uint32(s); /* tileDataSize, set later */
     for (index = 0; index < num_regions; index++)
     {
@@ -794,12 +795,13 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
     }
     stream_write(s, quants, num_quants * 5);
     tiles_start_pos = stream_get_pos(s);
+    tile_end_pos = -1;
     tiles_written = 0;
     for (index = 0; index < num_tiles; index++)
     {
         if (stream_get_left(s) < 22)
         {
-            return 1;
+            break;
         }
         x = tiles[index].x;
         y = tiles[index].y;
@@ -809,14 +811,14 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
         if ((quantIdxY >= num_quants) || (quantIdxCb >= num_quants) ||
             (quantIdxCr >= num_quants))
         {
-            return 1;
+            return -1;
         }
         tile_data = buf + (y << 8) * (stride_bytes >> 8) + (x << 8);
         xIdx = x / 64;
         yIdx = y / 64;
         if ((xIdx >= RFX_MAX_RB_X) || (yIdx >= RFX_MAX_RB_Y))
         {
-            return 1;
+            return -1;
         }
         tile_start_pos = stream_get_pos(s);
         stream_write_uint16(s, PRO_WBT_TILE_SIMPLE);
@@ -840,7 +842,7 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
             rb = xnew(struct rfx_rb);
             if (rb == NULL)
             {
-                return 1;
+                return -1;
             }
             enc->rbs[xIdx][yIdx] = rb;
         }
@@ -850,12 +852,12 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
                                  enc->dwt_buffer, u_quants);
         rfx_rem_dwt_shift_encode(v_buffer, enc->dwt_buffer3,
                                  enc->dwt_buffer, v_quants);
-        COEF_DIFF_COUNT_COPY(enc->dwt_buffer4, enc->dwt_buffer1, rb->y,
-                             jndex, dt_y_zeros, ot_y_zeros);
-        COEF_DIFF_COUNT_COPY(enc->dwt_buffer5, enc->dwt_buffer2, rb->u,
-                             jndex, dt_u_zeros, ot_u_zeros);
-        COEF_DIFF_COUNT_COPY(enc->dwt_buffer6, enc->dwt_buffer3, rb->v,
-                             jndex, dt_v_zeros, ot_v_zeros);
+        COEF_DIFF_COUNT(enc->dwt_buffer4, enc->dwt_buffer1, rb->y,
+                        jndex, dt_y_zeros, ot_y_zeros);
+        COEF_DIFF_COUNT(enc->dwt_buffer5, enc->dwt_buffer2, rb->u,
+                        jndex, dt_u_zeros, ot_u_zeros);
+        COEF_DIFF_COUNT(enc->dwt_buffer6, enc->dwt_buffer3, rb->v,
+                        jndex, dt_v_zeros, ot_v_zeros);
         if (ot_y_zeros + ot_u_zeros + ot_v_zeros <
             dt_y_zeros + dt_u_zeros + dt_v_zeros)
         {
@@ -878,7 +880,7 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
                                         stream_get_left(s), 81);
         if (y_bytes < 0)
         {
-            return 1;
+            break;
         }
         stream_seek(s, y_bytes);
         u_bytes = rfx_encode_diff_rlgr1(dwt_buffer_u,
@@ -886,7 +888,7 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
                                         stream_get_left(s), 81);
         if (u_bytes < 0)
         {
-            return 1;
+            break;
         }
         stream_seek(s, u_bytes);
         v_bytes = rfx_encode_diff_rlgr1(dwt_buffer_v,
@@ -894,7 +896,7 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
                                         stream_get_left(s), 81);
         if (v_bytes < 0)
         {
-            return 1;
+            break;
         }
         stream_seek(s, v_bytes);
         LLOGLN(10, ("rfx_pro_compose_message_region: y_bytes %d "
@@ -910,11 +912,32 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
         stream_write_uint16(s, 0); /* tailLen */
         stream_set_pos(s, tile_end_pos);
         ++tiles_written;
+        /* update the history only after you know there is space
+           for this tile in the compressed buffer */
+        if (tile_flags == 0)
+        {
+            /* undo the diff from rfx_encode_diff_rlgr */
+            for (jndex = 4096 - 80; jndex < 4096; jndex++)
+            {
+                enc->dwt_buffer1[jndex] += enc->dwt_buffer1[jndex - 1];
+                enc->dwt_buffer2[jndex] += enc->dwt_buffer2[jndex - 1];
+                enc->dwt_buffer3[jndex] += enc->dwt_buffer3[jndex - 1];
+            }
+        }
+        memcpy(rb->y, enc->dwt_buffer1, 64 * 64 * 2);
+        memcpy(rb->u, enc->dwt_buffer2, 64 * 64 * 2);
+        memcpy(rb->v, enc->dwt_buffer3, 64 * 64 * 2);
     }
+    if (tile_end_pos == -1)
+    {
+        return -1;
+    }
+    stream_set_pos(s, tile_end_pos);
     end_pos = stream_get_pos(s);
     stream_set_pos(s, start_pos + 2);
     stream_write_uint32(s, end_pos - start_pos); /* blockLen */
-    stream_set_pos(s, start_pos + 14);
+    stream_set_pos(s, start_pos + 12);
+    stream_write_uint16(s, tiles_written); /* num_tiles */
     stream_write_uint32(s, end_pos - tiles_start_pos); /* tileDataSize */
     stream_set_pos(s, end_pos);
     return tiles_written;
@@ -944,15 +967,19 @@ rfx_pro_compose_message_data(struct rfxencode *enc, STREAM *s,
                              int flags)
 {
     int tiles_written;
+
     LLOGLN(10, ("rfx_pro_compose_message_data:"));
     if (rfx_pro_compose_message_frame_begin(enc, s) != 0)
     {
         return -1;
     }
+    /* save 6 bytes for end_frame */
+    s->size -= 6;
     tiles_written = rfx_pro_compose_message_region(enc, s, regions, num_regions,
                                    buf, width, height, stride_bytes,
                                    tiles, num_tiles, quants, num_quants,
                                    flags);
+    s->size += 6;
     if (tiles_written <= 0)
     {
         return -1;
