@@ -44,7 +44,7 @@
 
 #define SETUPLOQ(_index, _shift) do { \
     lo_fact = (((quants[_index] >> (_shift)) & 0xf) - 6) + DWT_FACTOR; \
-    lo_half = 1 << (hi_fact - 1); } while (0)
+    lo_half = 1 << (lo_fact - 1); } while (0)
 #define SETUPHIQ(_index, _shift) do { \
     hi_fact = (((quants[_index] >> (_shift)) & 0xf) - 6) + DWT_FACTOR; \
     hi_half = 1 << (hi_fact - 1); } while (0)
