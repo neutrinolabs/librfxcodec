@@ -855,7 +855,7 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
         y_quants = quants + quantIdxY * 5;
         u_quants = quants + quantIdxCb * 5;
         v_quants = quants + quantIdxCr * 5;
-        rb = enc->rbs[xIdx * yIdx];
+        rb = enc->rbs[xIdx + yIdx * enc->max_rb_x];
         if (rb == NULL)
         {
             rb = xnew(struct rfx_rb);
@@ -863,7 +863,7 @@ rfx_pro_compose_message_region(struct rfxencode *enc, STREAM *s,
             {
                 return -1;
             }
-            enc->rbs[xIdx * yIdx] = rb;
+            enc->rbs[xIdx + yIdx * enc->max_rb_x] = rb;
         }
         enc->rfx_encode_dwt_shift_rem(y_buffer, enc->dwt_buffer1,
                                       enc->dwt_buffer, y_quants);
