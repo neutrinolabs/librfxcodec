@@ -61,6 +61,7 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/amd64/Makefile
                  src/x86/Makefile
+                 src/sse2/Makefile
                  tests/Makefile
                  rfxcodec.pc
                  rfxcodec-uninstalled.pc
