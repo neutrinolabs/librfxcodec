@@ -1,0 +1,20 @@
+
+SSE2                NEON
+_mm_slli_epi16      vshlq_n_s16
+_mm_slli_epi32      vshlq_n_s32
+_mm_slli_si128      vextq_s16(vdupq_n_s16(0), a, 7 - (imm))
+_mm_srai_epi16      vshrq_n_s16
+_mm_srai_epi32      vshrq_n_s32
+_mm_srli_si128      vextq_s16(a, vdupq_n_s16(0), (imm))
+_mm_add_epi16       vaddq_s16
+_mm_sub_epi16       vsubq_s16
+_mm_unpacklo_epi8   vzip1q_s8
+_mm_loadl_epi64     vcombine_s32(vld1_s32((int32_t const *) p), vcreate_s32(0)));
+_mm_storeu_si128    vst1q_s16
+_mm_loadu_si128     vld1q_s16
+_mm_packs_epi32     vcombine_s16(vqmovn_s32() vqmovn_s32())
+_mm_insert_epi16    vsetq_lane_s16
+_mm_extract_epi16   vgetq_lane_s16
+_mm_set1_epi16      vdupq_n_s16
+_mm_and_si128       vandq_s32 vandq_s16
+_mm_or_si128        vorrq_s32 vorrq_s16
