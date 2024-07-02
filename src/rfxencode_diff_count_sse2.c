@@ -59,9 +59,9 @@ rfx_encode_diff_count_sse2(sint16 *diff_buffer,
         _mm_store_si128((__m128i *)(diff_buffer + index), diff_vec);
         /* count */
         cmp_vec = _mm_cmpeq_epi16(dwt_vec, g_vec_zerov);
-        dwt_sum_vec = _mm_sub_epi16(cmp_vec, dwt_sum_vec); /* sub -1 or 0 */
+        dwt_sum_vec = _mm_sub_epi16(dwt_sum_vec, cmp_vec); /* sub -1 or 0 */
         cmp_vec = _mm_cmpeq_epi16(diff_vec, g_vec_zerov);
-        diff_sum_vec = _mm_sub_epi16(cmp_vec, diff_sum_vec); /* sub -1 or 0 */
+        diff_sum_vec = _mm_sub_epi16(diff_sum_vec, cmp_vec); /* sub -1 or 0 */
     }
     /* diff for the rest of tile */
     while (index < 4096)
