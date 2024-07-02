@@ -60,12 +60,12 @@ clear_encoder_rbs(struct rfxencode *enc)
 {
     int index;
     int jndex;
-    for (index = 0; index < RFX_MAX_RB_Y; ++index)
+    for (index = 0; index < enc->max_rb_y; ++index)
     {
-        for (jndex = 0; jndex < RFX_MAX_RB_X; ++jndex)
+        for (jndex = 0; jndex < enc->max_rb_x; ++jndex)
         {
-            free(enc->rbs[index][jndex]);
-            enc->rbs[index][jndex] = NULL;
+            free(enc->rbs[index * jndex]);
+            enc->rbs[index * jndex] = NULL;
         }
     }
 }
@@ -227,6 +227,11 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     if (flags & RFX_FLAGS_PRO1)
     {
         enc->pro_ver = 1;
+        enc->max_rb_x = (width + 63) / 64;
+        enc->max_rb_y = (height + 63) / 64;
+        enc->rbs = (struct rfx_rb **)
+            calloc(enc->max_rb_x * enc->max_rb_y, sizeof(struct rfx_rb *));
+
         if (flags & RFX_FLAGS_NOACCEL)
         {
         }
@@ -383,6 +388,7 @@ rfxcodec_encode_destroy(void *handle)
         return 0;
     }
     clear_encoder_rbs(enc);
+    free(enc->rbs);
     free(enc);
     return 0;
 }
