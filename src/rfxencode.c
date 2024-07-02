@@ -64,8 +64,8 @@ clear_encoder_rbs(struct rfxencode *enc)
     {
         for (jndex = 0; jndex < enc->max_rb_x; ++jndex)
         {
-            free(enc->rbs[index * jndex]);
-            enc->rbs[index * jndex] = NULL;
+            free(enc->rbs[index * enc->max_rb_x + jndex]);
+            enc->rbs[index * enc->max_rb_x + jndex] = NULL;
         }
     }
 }
