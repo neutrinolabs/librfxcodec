@@ -10,13 +10,13 @@ EXTRA_SOURCES=
 if WITH_SIMD_AMD64
 SUBDIRS += amd64 sse2
 librfxencode_la_LIBADD = amd64/librfxencode-amd64.la sse2/librfxencode-sse2.la
-AM_CPPFLAGS += -Isse2 -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_AMD64=1
+AM_CPPFLAGS += -I$(top_srcdir)/src/sse2 -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_AMD64=1
 endif
 
 if WITH_SIMD_X86
 SUBDIRS += x86 sse2
 librfxencode_la_LIBADD = x86/librfxencode-x86.la sse2/librfxencode-sse2.la
-AM_CPPFLAGS += -Isse2 -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_X86=1
+AM_CPPFLAGS += -I$(top_srcdir)/src/sse2 -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_X86=1
 endif
 
 noinst_HEADERS = \
