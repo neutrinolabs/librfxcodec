@@ -19,6 +19,12 @@ librfxencode_la_LIBADD = x86/librfxencode-x86.la sse2/librfxencode-sse2.la
 AM_CPPFLAGS += -I$(top_srcdir)/src/sse2 -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_X86=1
 endif
 
+if WITH_SIMD_ARM64
+SUBDIRS += neon
+librfxencode_la_LIBADD = neon/librfxencode-neon.la
+AM_CPPFLAGS += -I$(top_srcdir)/src/neon -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_ARM64=1
+endif
+
 noinst_HEADERS = \
   rfx_bitstream.h \
   rfxcommon.h \

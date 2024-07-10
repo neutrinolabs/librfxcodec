@@ -1,5 +1,5 @@
 /**
- * RemoteFX Codec Library
+ * RFX codec encoder
  *
  * Copyright 2024 Jay Sorg <jay.sorg@gmail.com>
  *
@@ -14,17 +14,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * DWT Reduce-Extrapolate Method MS-RDPEGFX 3.2.8.1.2.2
- * also does Quantization and Linearization 3.2.8.1.3
- * SSE2 accel
-*/
+ */
 
-#ifndef __RFXENCODE_DWT_SHIFT_REM_SSE2_H
-#define __RFXENCODE_DWT_SHIFT_REM_SSE2_H
+#ifndef __RFXENCODE_DIFF_COUNT_NEON_H
+#define __RFXENCODE_DIFF_COUNT_NEON_H
 
 int
-rfx_encode_dwt_shift_rem_sse2(const uint8 *in_buffer, sint16 *out_buffer,
-                              sint16 *tmp_buffer, const char *quants);
+rfx_encode_diff_count_neon(short *diff_buffer,
+                           const short *dwt_buffer,
+                           const short *hist_buffer,
+                           int *diff_zeros, int *dwt_zeros);
 
 #endif

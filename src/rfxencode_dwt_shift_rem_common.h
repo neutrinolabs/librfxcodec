@@ -40,7 +40,7 @@
 #define SETUP_IC_LL0(_y) in_buffer + (_y)
 #define SETUP_OC_L0(_y) out_buffer + (_y)
 #define SETUP_OC_H0(_y) out_buffer + 64 * 33 + (_y)
-#define IC_LL0_U8(_val, _offset) _val = (ic[(_offset) * 64] - 128) << DWT_FACTOR
+#define IC_LL0_U8(_val, _offset) _val = (ic[(_offset) * 64] - 128) << DWT_REM_FACTOR
 #define IC_LL0_S16(_val, _offset) _val = ic[(_offset) * 64]
 #define OC_L0(_offset, _val) lo[(_offset) * 64] = _val
 #define OC_H0(_offset, _val) hi[(_offset) * 64] = _val
@@ -104,10 +104,10 @@
 #define OC_HH3(_offset, _val) hi[(_offset)] = _val
 
 #define SETUPLOQ(_index, _shift) do { \
-    lo_fact = (((quants[_index] >> (_shift)) & 0xf) - 6) + DWT_FACTOR; \
+    lo_fact = (((quants[_index] >> (_shift)) & 0xf) - 6) + DWT_REM_FACTOR; \
     lo_half = 1 << (lo_fact - 1); } while (0)
 #define SETUPHIQ(_index, _shift) do { \
-    hi_fact = (((quants[_index] >> (_shift)) & 0xf) - 6) + DWT_FACTOR; \
+    hi_fact = (((quants[_index] >> (_shift)) & 0xf) - 6) + DWT_REM_FACTOR; \
     hi_half = 1 << (hi_fact - 1); } while (0)
 #define LOQ(_val) ((_val) + lo_half) >> lo_fact
 #define HIQ(_val) ((_val) + hi_half) >> hi_fact
