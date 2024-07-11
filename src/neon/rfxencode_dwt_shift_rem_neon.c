@@ -50,16 +50,14 @@
 #define OC_H0V(_offset, _val) vst1q_s16(hi + (_offset) * 64, _val)
 /*              L0 -> LL1, HL1 */
 #define IC_L0V(_x2nv, _x2n1v, _x2n2v, _offset) do { \
-    v1 = vld1q_s16(ic + 2 * (_offset) + 0); \
+    v1 = vld1q_s16(ic + 2 * (_offset)); \
     v2 = vld1q_s16(ic + 2 * (_offset) + 8); \
     _x2nv  = vcombine_s16( \
         vqmovn_s32(vshrq_n_s32(vshlq_n_s32((int32x4_t)v1, 16), 16)), \
         vqmovn_s32(vshrq_n_s32(vshlq_n_s32((int32x4_t)v2, 16), 16))); \
-    v1 = vextq_s16(v1, g_zero.v16x8, 1); \
-    v2 = vextq_s16(v2, g_zero.v16x8, 1); \
     _x2n1v = vcombine_s16( \
-        vqmovn_s32(vshrq_n_s32(vshlq_n_s32((int32x4_t)v1, 16), 16)), \
-        vqmovn_s32(vshrq_n_s32(vshlq_n_s32((int32x4_t)v2, 16), 16))); \
+        vqmovn_s32(vshrq_n_s32((int32x4_t)v1, 16)), \
+        vqmovn_s32(vshrq_n_s32((int32x4_t)v2, 16))); \
     v1 = vextq_s16(x2nv, g_zero.v16x8, 1); \
     _x2n2v = vsetq_lane_s16(ic[(_offset) * 2 + 16], v1, 7); \
 } while (0)
@@ -69,11 +67,9 @@
     _x2nv  = vcombine_s16( \
         vqmovn_s32(vshrq_n_s32(vshlq_n_s32((int32x4_t)v1, 16), 16)), \
         vqmovn_s32(vshrq_n_s32(vshlq_n_s32((int32x4_t)v2, 16), 16))); \
-    v1 = vextq_s16(v1, g_zero.v16x8, 1); \
-    v2 = vextq_s16(v2, g_zero.v16x8, 1); \
     _x2n1v = vcombine_s16( \
-        vqmovn_s32(vshrq_n_s32(vshlq_n_s32((int32x4_t)v1, 16), 16)), \
-        vqmovn_s32(vshrq_n_s32(vshlq_n_s32((int32x4_t)v2, 16), 16))); \
+        vqmovn_s32(vshrq_n_s32((int32x4_t)v1, 16)), \
+        vqmovn_s32(vshrq_n_s32((int32x4_t)v2, 16))); \
     /* ic[64] = 2 * ic[63] - ic[62] */ \
     ic64 = 2 * ic[(_offset) * 2 + 15] - ic[(_offset) * 2 + 14]; \
     v1 = vextq_s16(x2nv, g_zero.v16x8, 1); \
