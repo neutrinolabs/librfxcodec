@@ -46,14 +46,12 @@
     _mm_storeu_si128((__m128i *)(hi + (_offset) * 64), _val)
 /*              L0 -> LL1, HL1 */
 #define IC_L0V(_x2nv, _x2n1v, _x2n2v, _offset) do { \
-    v1 = _mm_loadu_si128((const __m128i *)(ic + 2 * (_offset) + 0)); \
+    v1 = _mm_loadu_si128((const __m128i *)(ic + 2 * (_offset))); \
     v2 = _mm_loadu_si128((const __m128i *)(ic + 2 * (_offset) + 8)); \
     _x2nv = _mm_packs_epi32(_mm_srai_epi32(_mm_slli_epi32(v1, 16), 16), \
                             _mm_srai_epi32(_mm_slli_epi32(v2, 16), 16)); \
-    _x2n1v = _mm_packs_epi32(_mm_srai_epi32( \
-                             _mm_slli_epi32(_mm_srli_si128(v1, 2), 16), 16), \
-                             _mm_srai_epi32( \
-                             _mm_slli_epi32(_mm_srli_si128(v2, 2), 16), 16)); \
+    _x2n1v = _mm_packs_epi32(_mm_srai_epi32(v1, 16), \
+                             _mm_srai_epi32(v2, 16)); \
     _x2n2v = _mm_insert_epi16(_mm_srli_si128(_x2nv, 2), \
                               ic[(_offset) * 2 + 16], 7);  \
 } while (0)
@@ -62,10 +60,8 @@
     v2 = _mm_loadu_si128((const __m128i *)(ic + 2 * (_offset) + 8)); \
     _x2nv = _mm_packs_epi32(_mm_srai_epi32(_mm_slli_epi32(v1, 16), 16), \
                             _mm_srai_epi32(_mm_slli_epi32(v2, 16), 16)); \
-    _x2n1v = _mm_packs_epi32(_mm_srai_epi32( \
-                             _mm_slli_epi32(_mm_srli_si128(v1, 2), 16), 16), \
-                             _mm_srai_epi32( \
-                             _mm_slli_epi32(_mm_srli_si128(v2, 2), 16), 16)); \
+    _x2n1v = _mm_packs_epi32(_mm_srai_epi32(v1, 16), \
+                             _mm_srai_epi32(v2, 16)); \
     /* ic[64] = 2 * ic[63] - ic[62] */ \
     ic64 = 2 * ic[(_offset) * 2 + 15] - ic[(_offset) * 2 + 14]; \
     _x2n2v = _mm_insert_epi16(_mm_srli_si128(_x2nv, 2), ic64, 7); \
