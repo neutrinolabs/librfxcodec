@@ -38,7 +38,7 @@
 /* level 1      LL0 -> L0, H0 */
 #define IC_LL0_U8V(_val, _offset) \
     _val = _mm_slli_epi16(_mm_sub_epi16(_mm_unpacklo_epi8( \
-        _mm_loadl_epi64((__m128i_u const *)(ic + (_offset) * 64)), \
+        _mm_loadl_epi64((__m128i const *)(ic + (_offset) * 64)), \
         g_vec_zerov), g_vec_128v), DWT_REM_FACTOR)
 #define OC_L0V(_offset, _val) \
     _mm_storeu_si128((__m128i *)(lo + (_offset) * 64), _val)
