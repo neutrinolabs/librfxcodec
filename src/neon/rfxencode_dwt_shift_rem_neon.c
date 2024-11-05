@@ -113,8 +113,8 @@
 
 #define SETUPLOQV lo_halfv = vdupq_n_s16(lo_half)
 #define SETUPHIQV hi_halfv = vdupq_n_s16(hi_half)
-#define LOQV(_val) vshrq_n_s16(vaddq_s16(_val, lo_halfv), lo_fact)
-#define HIQV(_val) vshrq_n_s16(vaddq_s16(_val, hi_halfv), hi_fact)
+#define LOQV(_val) vshlq_s16(vaddq_s16(_val, lo_halfv), vdupq_n_s16(-lo_fact))
+#define HIQV(_val) vshlq_s16(vaddq_s16(_val, hi_halfv), vdupq_n_s16(-hi_fact))
 
 #define LO_MATHV(_hn, _hn1, _x2n) \
     vaddq_s16(_x2n, vshrq_n_s16(vaddq_s16(_hn1, _hn), 1))
