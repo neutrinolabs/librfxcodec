@@ -191,6 +191,10 @@ process(void)
 
     out_data = (char *) malloc(MAX_OUT_DATA_BYTES);
     bmp_data = (char *) malloc(MAX_BMP_DATA_BYTES);
+    if (out_data == NULL || bmp_data == NULL)
+    {
+        abort();
+    }
     memset(bmp_data, 0xff, MAX_BMP_DATA_BYTES);
 
     if (read_bitmap(g_in_filename, &width, &height, &bpp, bmp_data) != 0)
