@@ -212,8 +212,8 @@ rfx_encode_dwt_shift_rem_horz_lv1(const sint16 *in_buffer, sint16 *out_buffer,
     sint16 ic64;
     int n;
     int y;
-    int lo_fact;
-    int hi_fact;
+    int lo_fact = 0;
+    int hi_fact = 0;
     int lo_half;
     int hi_half;
 
@@ -417,8 +417,8 @@ rfx_encode_dwt_shift_rem_horz_lv2(const sint16 *in_buffer, sint16 *out_buffer,
     sint16 hn;          /* H[n]      */
     sint16 ic30;
     int y;
-    int lo_fact;
-    int hi_fact;
+    int lo_fact = 0;
+    int hi_fact = 0;
     int lo_half;
     int hi_half;
 
@@ -614,8 +614,8 @@ rfx_encode_dwt_shift_rem_horz_lv3(const sint16 *in_buffer, sint16 *out_buffer,
     sint16 hn;          /* H[n]      */
     sint16 ic14;
     int y;
-    int lo_fact;
-    int hi_fact;
+    int lo_fact = 0;
+    int hi_fact = 0;
     int lo_half;
     int hi_half;
 
