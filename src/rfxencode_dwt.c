@@ -107,7 +107,8 @@ static int
 rfx_dwt_2d_encode_block(sint16 *in_out_buffer, sint16 *tmp_buffer,
                         int subband_width)
 {
-    sint16 *src, *l, *h;
+    const sint16 *src;
+    sint16 *l, *h;
     int total_width;
     int x, y;
     int n;

@@ -81,7 +81,7 @@ read_bitmap(char *file_name, int *width, int *height, int *bpp, char *bmp_data)
     struct bmp_hdr bh;
     struct dib_hdr dh;
     unsigned char *src8;
-    int *src32;
+    const int *src32;
     int *dst32;
 
     fd = open(file_name, O_RDONLY);

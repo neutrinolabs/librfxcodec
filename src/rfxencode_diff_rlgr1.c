@@ -55,7 +55,7 @@ rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size,
 
     int bit_count;
     unsigned int bits;
-    uint8 *cdata_org;
+    const uint8 *cdata_org;
 
     uint32 twoMs;
 

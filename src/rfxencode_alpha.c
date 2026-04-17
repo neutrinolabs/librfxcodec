@@ -190,8 +190,8 @@ fpack(char *plane, int cx, int cy, STREAM *s)
 {
     char *ptr8;
     char *colptr;
-    char *lend;
-    uint8 *holdp;
+    const char *lend;
+    const uint8 *holdp;
     int jndex;
     int collen;
     int replen;
