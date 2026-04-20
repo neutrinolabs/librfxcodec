@@ -138,9 +138,9 @@ rfx_encode_rgb(struct rfxencode *enc, const char *rgb_data,
                const char *v_quants,
                STREAM *data_out, int *y_size, int *u_size, int *v_size)
 {
-    uint8 *y_r_buffer;
-    uint8 *u_g_buffer;
-    uint8 *v_b_buffer;
+    const uint8 *y_r_buffer;
+    const uint8 *u_g_buffer;
+    const uint8 *v_b_buffer;
 
     LLOGLN(10, ("rfx_encode_rgb:"));
     if (enc->rfx_encode_rgb_to_yuv(enc, rgb_data, width, height,
@@ -190,10 +190,10 @@ rfx_encode_argb(struct rfxencode *enc, const char *argb_data,
                 STREAM *data_out, int *y_size, int *u_size,
                 int *v_size, int *a_size)
 {
-    uint8 *a_buffer;
-    uint8 *y_r_buffer;
-    uint8 *u_g_buffer;
-    uint8 *v_b_buffer;
+    const uint8 *a_buffer;
+    const uint8 *y_r_buffer;
+    const uint8 *u_g_buffer;
+    const uint8 *v_b_buffer;
 
     LLOGLN(10, ("rfx_encode_argb:"));
     if (enc->rfx_encode_argb_to_yuva(enc, argb_data, width, height,
