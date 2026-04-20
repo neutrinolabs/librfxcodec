@@ -43,19 +43,15 @@
 
 #include "rfxencode_dwt_shift_rem.h"
 
-#ifdef RFX_USE_ACCEL_AMD64
+#if defined(RFX_USE_ACCEL_AMD64)
 #include "amd64/funcs_amd64.h"
 #include "rfxencode_diff_count_sse2.h"
 #include "rfxencode_dwt_shift_rem_sse2.h"
-#endif
-
-#ifdef RFX_USE_ACCEL_X86
+#elif defined(RFX_USE_ACCEL_X86)
 #include "x86/funcs_x86.h"
 #include "rfxencode_diff_count_sse2.h"
 #include "rfxencode_dwt_shift_rem_sse2.h"
-#endif
-
-#ifdef RFX_USE_ACCEL_ARM64
+#elif defined(RFX_USE_ACCEL_ARM64)
 #include "rfxencode_diff_count_neon.h"
 #include "rfxencode_dwt_shift_rem_neon.h"
 #endif
@@ -504,14 +500,12 @@ rfxcodec_encode_get_internals(struct rfxcodec_encode_internals *internals)
     internals->rfxencode_dwt_shift_amd64_sse41 = rfxcodec_encode_dwt_shift_amd64_sse41;
     internals->rfx_encode_diff_count_sse2 = rfx_encode_diff_count_sse2;
     internals->rfx_encode_dwt_shift_rem_sse2 = rfx_encode_dwt_shift_rem_sse2;
-#endif
-#if defined(RFX_USE_ACCEL_X86)
+#elif defined(RFX_USE_ACCEL_X86)
     internals->rfxencode_dwt_shift_x86_sse2 = rfxcodec_encode_dwt_shift_x86_sse2;
     internals->rfxencode_dwt_shift_x86_sse41 = rfxcodec_encode_dwt_shift_x86_sse41;
     internals->rfx_encode_diff_count_sse2 = rfx_encode_diff_count_sse2;
     internals->rfx_encode_dwt_shift_rem_sse2 = rfx_encode_dwt_shift_rem_sse2;
-#endif
-#if defined(RFX_USE_ACCEL_ARM64)
+#elif defined(RFX_USE_ACCEL_ARM64)
     internals->rfx_encode_diff_count_neon = rfx_encode_diff_count_neon;
     internals->rfx_encode_dwt_shift_rem_neon = rfx_encode_dwt_shift_rem_neon;
 #endif

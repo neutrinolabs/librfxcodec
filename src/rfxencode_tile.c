@@ -42,11 +42,9 @@
 #include "rfxencode_diff_rlgr3.h"
 #include "rfxencode_alpha.h"
 
-#ifdef RFX_USE_ACCEL_X86
+#if defined(RFX_USE_ACCEL_X86)
 #include "x86/funcs_x86.h"
-#endif
-
-#ifdef RFX_USE_ACCEL_AMD64
+#elif defined(RFX_USE_ACCEL_AMD64)
 #include "amd64/funcs_amd64.h"
 #endif
 
