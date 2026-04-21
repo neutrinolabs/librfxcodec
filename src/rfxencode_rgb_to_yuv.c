@@ -45,7 +45,7 @@
     do { if (_level < LLOG_LEVEL) { printf _args ; printf("\n"); } } while (0)
 
 /******************************************************************************/
-static int
+static void
 rfx_encode_format_rgb(const char *rgb_data, int width, int height,
                       int stride_bytes, int pixel_format,
                       uint8 *r_buf, uint8 *g_buf, uint8 *b_buf)
@@ -209,11 +209,10 @@ rfx_encode_format_rgb(const char *rgb_data, int width, int height,
             }
             break;
     }
-    return 0;
 }
 
 /******************************************************************************/
-static int
+static void
 rfx_encode_format_argb(const char *argb_data, int width, int height,
                        int stride_bytes, int pixel_format,
                        uint8 *a_buf, uint8 *r_buf, uint8 *g_buf, uint8 *b_buf)
@@ -390,7 +389,6 @@ rfx_encode_format_argb(const char *argb_data, int width, int height,
             }
             break;
     }
-    return 0;
 }
 
 /******************************************************************************/
@@ -404,7 +402,7 @@ rfx_encode_format_argb(const char *argb_data, int width, int height,
 /* 19595  38470   7471
   -11071 -21736  32807
    32756 -27429  -5327 */
-static int
+static void
 rfx_encode_rgb_to_yuv_tile(uint8 *y_r_buf, uint8 *u_g_buf, uint8 *v_b_buf)
 {
     int i;
@@ -426,7 +424,6 @@ rfx_encode_rgb_to_yuv_tile(uint8 *y_r_buf, uint8 *u_g_buf, uint8 *v_b_buf)
         v_b_buf[i] = MINMAX(v + 128, 0, 255);
 
     }
-    return 0;
 }
 
 /******************************************************************************/
@@ -442,16 +439,11 @@ rfx_encode_rgb_to_yuv(struct rfxencode *enc, const char *rgb_data,
     u_g_buffer = enc->u_g_buffer;
     v_b_buffer = enc->v_b_buffer;
 
-    if (rfx_encode_format_rgb(rgb_data, width, height, stride_bytes,
-                              enc->format,
-                              y_r_buffer, u_g_buffer, v_b_buffer) != 0)
-    {
-        return 1;
-    }
-    if (rfx_encode_rgb_to_yuv_tile(y_r_buffer, u_g_buffer, v_b_buffer) != 0)
-    {
-        return 1;
-    }
+    rfx_encode_format_rgb(rgb_data, width, height, stride_bytes,
+                          enc->format,
+                          y_r_buffer, u_g_buffer, v_b_buffer);
+
+    rfx_encode_rgb_to_yuv_tile(y_r_buffer, u_g_buffer, v_b_buffer);
     return 0;
 }
 
@@ -470,15 +462,11 @@ rfx_encode_argb_to_yuva(struct rfxencode *enc, const char *argb_data,
     u_g_buffer = enc->u_g_buffer;
     v_b_buffer = enc->v_b_buffer;
 
-    if (rfx_encode_format_argb(argb_data, width, height, stride_bytes,
-                               enc->format, a_buffer,
-                               y_r_buffer, u_g_buffer, v_b_buffer) != 0)
-    {
-        return 1;
-    }
-    if (rfx_encode_rgb_to_yuv_tile(y_r_buffer, u_g_buffer, v_b_buffer) != 0)
-    {
-        return 1;
-    }
+    rfx_encode_format_argb(argb_data, width, height, stride_bytes,
+                           enc->format, a_buffer,
+                           y_r_buffer, u_g_buffer, v_b_buffer);
+
+    rfx_encode_rgb_to_yuv_tile(y_r_buffer, u_g_buffer, v_b_buffer);
+
     return 0;
 }
