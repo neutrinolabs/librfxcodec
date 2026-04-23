@@ -1,0 +1,58 @@
+#! /bin/sh
+
+set -e
+
+: ${INFILE=test_img.bmp}
+: ${OUTFILE=test_img.rfx}
+: ${OUTFILE_N=test_img-n.rfx}
+
+test_series() {
+  name="$1"
+  shift
+  count=1
+  while test "$count" -lt 10; do
+    echo -n "$name $count "
+
+    ./rfxencode "$@" -c "$count" -i $INFILE -o $OUTFILE >/dev/null
+    ./rfxencode "$@" -c "$count" -i $INFILE -o $OUTFILE_N -n >/dev/null
+    if cmp $OUTFILE $OUTFILE_N; then
+      echo "OK"
+    else
+      echo "BAD!"
+      exit 1
+    fi
+
+    count=$(($count+1))
+  done
+  rm -f $OUTFILE $OUTFILE_N
+}
+
+test_tiles() {
+  name="$1"
+  shift
+  tile_x=90
+  while test "$tile_x" -le 100; do
+    tile_y=90
+    while test "$tile_y" -le 100; do
+      echo -n "$name ${tile_x}x${tile_y} "
+      convert -extent "${tile_x}x${tile_y}" $INFILE tile.bmp
+      rm -f tile.rfx tile-n.rfx
+      ./rfxencode "$@" -i tile.bmp -o tile.rfx >/dev/null
+      ./rfxencode "$@" -i tile.bmp -o tile-n.rfx -n >/dev/null
+      if cmp tile.rfx tile-n.rfx; then
+        echo "OK"
+      else
+        echo "BAD!"
+        exit 1
+      fi
+      tile_y=$(($tile_y+1))
+    done
+    tile_x=$(($tile_x+1))
+  done
+  rm -f tile.bmp tile.rfx tile-n.rfx
+}
+
+test_series "rlgr1" "-1"
+test_series "rlgr3"
+test_tiles "rlgr1" "-1"
+test_tiles "rlgr3"
